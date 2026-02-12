@@ -1,0 +1,77 @@
+<!-- ============================================================
+     HERO SECTION
+     ============================================================ -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
+
+  <!-- Image de fond (placeholder gradient pour le moment) -->
+  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-primary-900 to-gray-800"></div>
+
+  <!-- Overlay pattern subtil -->
+  <div
+    class="absolute inset-0 opacity-10"
+    style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"
+  ></div>
+
+  <!-- Contenu hero -->
+  <div class="relative w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 bg-primary-600/30 border border-primary-400/30 rounded-full px-4 py-1.5 mb-6">
+      <span class="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
+      <span class="text-primary-200 text-sm font-medium">Agence immobilière en Belgique</span>
+    </div>
+
+    <!-- Titre principal -->
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+      Trouvez le bien
+      <span class="text-primary-400"> idéal</span>
+    </h1>
+
+    <!-- Sous-titre -->
+    <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-10">
+      Des centaines de maisons, appartements et terrains à travers toute la Belgique.
+      Achat ou location — votre projet commence ici.
+    </p>
+
+    <!-- Carte de recherche -->
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 text-left">
+      <app-search-form (searched)="onSearch($event)" />
+    </div>
+
+    <!-- Résultats / état de chargement -->
+    @if (isLoading()) {
+      <div class="mt-6 flex items-center justify-center gap-2 text-white/70">
+        <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-sm">Recherche en cours...</span>
+      </div>
+    }
+
+    @if (!isLoading() && lastSearchParams()) {
+      <div class="mt-6 text-white/70 text-sm">
+        @if (totalResults() > 0) {
+          <span>
+            <strong class="text-white">{{ totalResults() }}</strong>
+            {{ totalResults() === 1 ? 'bien trouvé' : 'biens trouvés' }}
+          </span>
+        } @else {
+          <span>Aucun bien trouvé pour ces critères.</span>
+        }
+      </div>
+    }
+
+    <!-- Stats rapides -->
+    <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/10">
+      @for (stat of stats; track stat.label) {
+        <div class="text-center">
+          <div class="text-2xl sm:text-3xl font-bold text-white">{{ stat.value }}</div>
+          <div class="text-xs sm:text-sm text-gray-400 mt-1">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+
+  </div>
+
+</section>

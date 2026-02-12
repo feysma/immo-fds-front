@@ -1,0 +1,175 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+  <!-- Onglets Acheter / Louer -->
+  <div class="flex gap-1 mb-6">
+    @for (option of transactionOptions; track option.value) {
+      <button
+        type="button"
+        (click)="form.get('transactionType')!.setValue(option.value)"
+        [class]="
+          form.get('transactionType')!.value === option.value
+            ? 'flex-1 py-2.5 px-6 rounded-lg font-semibold text-sm bg-primary-600 text-white shadow-sm transition-all'
+            : 'flex-1 py-2.5 px-6 rounded-lg font-semibold text-sm bg-white/80 text-gray-600 hover:bg-white transition-all border border-white/50'
+        "
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Champs principaux -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+
+    <!-- Type de bien -->
+    <div class="flex flex-col gap-1">
+      <label for="propertyType" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        Type de bien
+      </label>
+      <select
+        id="propertyType"
+        formControlName="propertyType"
+        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all appearance-none cursor-pointer"
+      >
+        @for (opt of propertyTypeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Province -->
+    <div class="flex flex-col gap-1">
+      <label for="province" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        Province
+      </label>
+      <select
+        id="province"
+        formControlName="province"
+        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all appearance-none cursor-pointer"
+      >
+        @for (opt of provinceOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Ville -->
+    <div class="flex flex-col gap-1">
+      <label for="city" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        Ville ou code postal
+      </label>
+      <input
+        id="city"
+        type="text"
+        formControlName="city"
+        placeholder="ex : Bruxelles, 1000..."
+        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+      />
+    </div>
+
+    <!-- Bouton recherche (ou toggle avancé + recherche) -->
+    <div class="flex flex-col gap-1">
+      <span class="text-xs font-medium text-transparent uppercase tracking-wide px-1 select-none">
+        &nbsp;
+      </span>
+      <button
+        type="submit"
+        class="w-full rounded-lg bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white font-semibold py-2.5 px-4 text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        Rechercher
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Toggle filtres avancés -->
+  <div class="flex items-center gap-4">
+    <button
+      type="button"
+      (click)="toggleAdvanced()"
+      class="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4 transition-transform duration-200"
+        [class.rotate-180]="showAdvanced()"
+        fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7" />
+      </svg>
+      {{ showAdvanced() ? 'Masquer les filtres' : 'Filtres avancés' }}
+    </button>
+
+    @if (form.get('city')!.value || form.get('propertyType')!.value || form.get('province')!.value) {
+      <button
+        type="button"
+        (click)="resetForm()"
+        class="text-sm text-gray-400 hover:text-gray-600 transition-colors ml-auto"
+      >
+        Réinitialiser
+      </button>
+    }
+  </div>
+
+  <!-- Filtres avancés (collapse) -->
+  @if (showAdvanced()) {
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100">
+
+      <!-- Prix min -->
+      <div class="flex flex-col gap-1">
+        <label for="minPrice" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+          Prix min (€)
+        </label>
+        <input
+          id="minPrice"
+          type="number"
+          formControlName="minPrice"
+          placeholder="ex : 150 000"
+          min="0"
+          class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+        />
+      </div>
+
+      <!-- Prix max -->
+      <div class="flex flex-col gap-1">
+        <label for="maxPrice" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+          Prix max (€)
+        </label>
+        <input
+          id="maxPrice"
+          type="number"
+          formControlName="maxPrice"
+          placeholder="ex : 500 000"
+          min="0"
+          class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+        />
+      </div>
+
+      <!-- Chambres min -->
+      <div class="flex flex-col gap-1">
+        <label for="minBedrooms" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+          Chambres min
+        </label>
+        <div class="flex gap-1">
+          @for (n of [1, 2, 3, 4]; track n) {
+            <button
+              type="button"
+              (click)="form.get('minBedrooms')!.setValue(form.get('minBedrooms')!.value === n ? null : n)"
+              [class]="
+                form.get('minBedrooms')!.value === n
+                  ? 'flex-1 py-2.5 rounded-lg text-sm font-semibold bg-primary-600 text-white transition-all'
+                  : 'flex-1 py-2.5 rounded-lg text-sm font-semibold bg-white border border-gray-200 text-gray-600 hover:border-primary-400 transition-all'
+              "
+            >
+              {{ n }}+
+            </button>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+
+</form>
