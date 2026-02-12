@@ -98,9 +98,11 @@ export class PropertiesComponent implements OnInit {
       this.load(params);
     });
 
-    // Rechargement au changement de tri
+    // Rechargement au changement de tri — recharge avec les params courants, page 0
     this.sortForm.get('sort')!.valueChanges.subscribe(() => {
-      this.goToPage(0);
+      const params = { ...this.currentParams(), page: 0 };
+      this.currentPage.set(0);
+      this.load(params);
     });
   }
 

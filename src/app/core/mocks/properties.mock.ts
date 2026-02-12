@@ -223,12 +223,26 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
 ];
 
 export function getMockPage(
-  params: { page?: number; size?: number; transactionType?: string; propertyType?: string; province?: string; city?: string; minPrice?: number; maxPrice?: number; minBedrooms?: number } = {}
+  params: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDir?: string;
+    transactionType?: string;
+    propertyType?: string;
+    province?: string;
+    city?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minBedrooms?: number;
+  } = {}
 ): PageResponse<PropertySummaryResponse> {
   const page = params.page ?? 0;
   const size = params.size ?? 12;
+  const sortBy = params.sortBy ?? 'createdAt';
+  const sortDir = params.sortDir ?? 'desc';
 
-  let filtered = MOCK_PROPERTIES.filter((p) => {
+  const filtered = MOCK_PROPERTIES.filter((p) => {
     if (params.transactionType && p.transactionType !== params.transactionType) return false;
     if (params.propertyType && p.propertyType !== params.propertyType) return false;
     if (params.province && p.province !== params.province) return false;
@@ -239,8 +253,33 @@ export function getMockPage(
     return true;
   });
 
-  const total = filtered.length;
-  const content = filtered.slice(page * size, page * size + size);
+  const sorted = [...filtered].sort((a, b) => {
+    let valA: number | string;
+    let valB: number | string;
+
+    switch (sortBy) {
+      case 'price':
+        valA = a.price;
+        valB = b.price;
+        break;
+      case 'surface':
+        valA = a.surface ?? 0;
+        valB = b.surface ?? 0;
+        break;
+      case 'createdAt':
+      default:
+        valA = a.createdAt;
+        valB = b.createdAt;
+        break;
+    }
+
+    if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const total = sorted.length;
+  const content = sorted.slice(page * size, page * size + size);
 
   return {
     content,
