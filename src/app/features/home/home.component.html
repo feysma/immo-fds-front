@@ -35,32 +35,8 @@
 
     <!-- Carte de recherche -->
     <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 text-left">
-      <app-search-form (searched)="onSearch($event)" />
+      <app-search-form />
     </div>
-
-    <!-- Résultats / état de chargement -->
-    @if (isLoading()) {
-      <div class="mt-6 flex items-center justify-center gap-2 text-white/70">
-        <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-        <span class="text-sm">Recherche en cours...</span>
-      </div>
-    }
-
-    @if (!isLoading() && lastSearchParams()) {
-      <div class="mt-6 text-white/70 text-sm">
-        @if (totalResults() > 0) {
-          <span>
-            <strong class="text-white">{{ totalResults() }}</strong>
-            {{ totalResults() === 1 ? 'bien trouvé' : 'biens trouvés' }}
-          </span>
-        } @else {
-          <span>Aucun bien trouvé pour ces critères.</span>
-        }
-      </div>
-    }
 
     <!-- Stats rapides -->
     <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/10">

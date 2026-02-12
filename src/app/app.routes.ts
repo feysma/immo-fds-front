@@ -7,6 +7,11 @@ export const routes: Routes = [
       import('./features/home/home.component').then((m) => m.HomeComponent),
   },
   {
+    path: 'properties',
+    loadComponent: () =>
+      import('./features/properties/properties.component').then((m) => m.PropertiesComponent),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

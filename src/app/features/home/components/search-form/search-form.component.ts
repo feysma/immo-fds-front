@@ -1,11 +1,6 @@
-import {
-  Component,
-  OnInit,
-  inject,
-  signal,
-  output,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PropertyService } from '../../../../core/services/property.service';
 import { PropertySearchParams } from '../../../../core/models/property.model';
 
@@ -49,9 +44,8 @@ const PROVINCE_OPTIONS = [
 })
 export class SearchFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly propertyService = inject(PropertyService);
-
-  readonly searched = output<PropertySearchParams>();
 
   readonly transactionOptions = TRANSACTION_OPTIONS;
   readonly propertyTypeOptions = PROPERTY_TYPE_OPTIONS;
@@ -70,10 +64,13 @@ export class SearchFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Sync avec les params enregistrés dans le service si existants
+    // Pré-remplir avec les derniers paramètres si on revient de la page résultats
     const existing = this.propertyService.searchParams();
     if (Object.keys(existing).length > 0) {
       this.form.patchValue(existing as any);
+      if (existing.minPrice || existing.maxPrice || existing.minBedrooms) {
+        this.showAdvanced.set(true);
+      }
     }
   }
 
@@ -93,21 +90,25 @@ export class SearchFormComponent implements OnInit {
       minPrice: raw.minPrice ?? undefined,
       maxPrice: raw.maxPrice ?? undefined,
       minBedrooms: raw.minBedrooms ?? undefined,
-      page: 0,
-      size: 12,
     };
 
     // Nettoyage des valeurs undefined
-    Object.keys(params).forEach((k) => {
-      if ((params as any)[k] === undefined) delete (params as any)[k];
+    const cleanParams: Record<string, string> = {};
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') {
+        cleanParams[k] = String(v);
+      }
     });
 
     this.propertyService.searchParams.set(params);
-    this.searched.emit(params);
+
+    // Navigation vers la page résultats avec query params
+    this.router.navigate(['/properties'], { queryParams: cleanParams });
   }
 
   resetForm(): void {
     this.form.reset({ transactionType: 'SALE' });
     this.showAdvanced.set(false);
+    this.propertyService.searchParams.set({});
   }
 }
