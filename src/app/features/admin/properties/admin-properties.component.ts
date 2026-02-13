@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { AdminPropertyService, AdminPropertySearchParams } from '../../../core/services/admin-property.service';
 import { PropertyService } from '../../../core/services/property.service';
@@ -37,6 +38,7 @@ const TRANSACTION_LABELS: Record<string, string> = {
 })
 export class AdminPropertiesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly adminPropertyService = inject(AdminPropertyService);
   private readonly propertyService = inject(PropertyService);
 
@@ -90,6 +92,10 @@ export class AdminPropertiesComponent implements OnInit {
 
   imageUrl(reference: string, imageId: number): string {
     return this.propertyService.getImageUrl(reference, imageId);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/admin/dashboard']);
   }
 
   // ─── Chargement ──────────────────────────────────────────────────────────
