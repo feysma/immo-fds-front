@@ -1,14 +1,17 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '../../core/guards/auth.guard';
+import { authGuard, guestGuard } from '../../core/guards/auth.guard';
 
 export const adminRoutes: Routes = [
   {
+    // Racine /admin : redirige vers dashboard (authGuard renverra vers login si non connecté)
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
   {
+    // Page de login : accessible uniquement si NON connecté
     path: 'login',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./login/login.component').then((m) => m.LoginComponent),
   },
