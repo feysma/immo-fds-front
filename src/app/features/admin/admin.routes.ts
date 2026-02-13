@@ -28,6 +28,11 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./properties/admin-properties.component').then((m) => m.AdminPropertiesComponent),
       },
+      {
+        path: 'properties/:reference',
+        loadComponent: () =>
+          import('./property-edit/admin-property-edit.component').then((m) => m.AdminPropertyEditComponent),
+      },
     ],
   },
 ];

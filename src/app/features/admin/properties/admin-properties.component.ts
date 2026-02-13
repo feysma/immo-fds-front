@@ -98,6 +98,10 @@ export class AdminPropertiesComponent implements OnInit {
     this.router.navigate(['/admin/dashboard']);
   }
 
+  administrer(reference: string): void {
+    this.router.navigate(['/admin/properties', reference]);
+  }
+
   // ─── Chargement ──────────────────────────────────────────────────────────
   load(page = this.currentPage()): void {
     this.isLoading.set(true);
