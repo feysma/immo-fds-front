@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, delay, tap, catchError, throwError } from 'rxjs';
 import { USE_MOCK } from '../mocks/app.mock';
+import { MOCK_CREDENTIALS } from '../mocks/auth.mock';
 import { AuthResponse, LoginRequest, UserResponse } from '../models/auth.model';
 
 const API_BASE = 'http://localhost:8080/api/v1/auth';
@@ -11,7 +12,7 @@ const STORAGE_KEY_USER = 'immo_user';
 
 const MOCK_ADMIN_USER: UserResponse = {
   id: 1,
-  email: 'admin@immofds.be',
+  email: MOCK_CREDENTIALS.email,
   firstName: 'Admin',
   lastName: 'ImmoFDS',
   role: 'SUPER_ADMIN',
@@ -52,7 +53,7 @@ export class AuthService {
 
   login(email: string, password: string): Observable<AuthResponse> {
     if (USE_MOCK) {
-      if (email === 'admin@immofds.be' && password === 'Admin@2026!') {
+      if (email === MOCK_CREDENTIALS.email && password === MOCK_CREDENTIALS.password) {
         return of(MOCK_AUTH_RESPONSE).pipe(
           delay(600),
           tap((res) => this.handleAuthSuccess(res))

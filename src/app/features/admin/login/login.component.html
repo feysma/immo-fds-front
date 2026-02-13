@@ -18,7 +18,22 @@
     <!-- Carte login -->
     <div class="bg-white rounded-2xl shadow-2xl p-8">
 
-      <h1 class="text-xl font-bold text-gray-900 mb-1">Connexion</h1>
+      <div class="flex items-center justify-between mb-1">
+        <h1 class="text-xl font-bold text-gray-900">Connexion</h1>
+        @if (isMock) {
+          <button
+            type="button"
+            (click)="fillMockCredentials()"
+            title="Remplir avec les identifiants de démonstration"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+            </svg>
+            Démo
+          </button>
+        }
+      </div>
       <p class="text-sm text-gray-500 mb-6">Accès réservé aux administrateurs.</p>
 
       <!-- Message d'erreur -->
