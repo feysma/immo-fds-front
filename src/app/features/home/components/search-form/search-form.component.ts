@@ -67,7 +67,17 @@ export class SearchFormComponent implements OnInit {
     // Pré-remplir avec les derniers paramètres si on revient de la page résultats
     const existing = this.propertyService.searchParams();
     if (Object.keys(existing).length > 0) {
-      this.form.patchValue(existing as any);
+      // Les champs select doivent recevoir '' (et non undefined) pour que l'option
+      // "Tous les types" / "Toute la Belgique" soit sélectionnée par défaut.
+      this.form.patchValue({
+        transactionType: existing.transactionType ?? 'SALE',
+        propertyType: existing.propertyType ?? '',
+        province: existing.province ?? '',
+        city: existing.city ?? '',
+        minPrice: existing.minPrice ?? null,
+        maxPrice: existing.maxPrice ?? null,
+        minBedrooms: existing.minBedrooms ?? null,
+      });
       if (existing.minPrice || existing.maxPrice || existing.minBedrooms) {
         this.showAdvanced.set(true);
       }
