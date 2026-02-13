@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { PropertyService } from './property.service';
 import { USE_MOCK } from '../mocks/app.mock';
+import { environment } from '../../../environments/environment';
 
 /**
  * Tests pour PropertyService.
@@ -73,7 +74,7 @@ describe('PropertyService', () => {
     } else {
       it('(real) should build the correct API URL', () => {
         const url = service.getImageUrl('IMM-001', 42);
-        expect(url).toBe('http://localhost:8080/api/v1/public/properties/IMM-001/images/42');
+        expect(url).toBe(`${environment.apiBaseUrl}/api/v1/public/properties/IMM-001/images/42`);
       });
     }
   });
@@ -133,7 +134,7 @@ describe('PropertyService', () => {
       it('(real) should call the correct endpoint', () => {
         service.searchProperties({ transactionType: 'SALE' }).subscribe();
         const req = httpMock.expectOne((r) =>
-          r.url === 'http://localhost:8080/api/v1/public/properties' &&
+          r.url === `${environment.apiBaseUrl}/api/v1/public/properties` &&
           r.params.get('transactionType') === 'SALE'
         );
         expect(req.request.method).toBe('GET');
@@ -158,7 +159,7 @@ describe('PropertyService', () => {
     } else {
       it('(real) should call /types', () => {
         service.getPropertyTypes().subscribe();
-        const req = httpMock.expectOne('http://localhost:8080/api/v1/public/properties/types');
+        const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/v1/public/properties/types`);
         expect(req.request.method).toBe('GET');
         req.flush([]);
       });
@@ -178,7 +179,7 @@ describe('PropertyService', () => {
     } else {
       it('(real) should call /provinces', () => {
         service.getProvinces().subscribe();
-        const req = httpMock.expectOne('http://localhost:8080/api/v1/public/properties/provinces');
+        const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/v1/public/properties/provinces`);
         expect(req.request.method).toBe('GET');
         req.flush([]);
       });
@@ -217,7 +218,7 @@ describe('PropertyService', () => {
       it('(real) should call the correct endpoint', () => {
         service.getPropertyByReference('IMM-001').subscribe();
         const req = httpMock.expectOne(
-          'http://localhost:8080/api/v1/public/properties/IMM-001'
+          `${environment.apiBaseUrl}/api/v1/public/properties/IMM-001`
         );
         expect(req.request.method).toBe('GET');
         req.flush({ reference: 'IMM-001', images: [] });

@@ -11,8 +11,9 @@ import {
 import { USE_MOCK } from '../mocks/app.mock';
 import { getMockPage, MOCK_PROPERTY_TYPES, MOCK_PROVINCES } from '../mocks/properties.mock';
 import { getMockDetail, MOCK_IMAGE_URLS } from '../mocks/property-detail.mock';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = 'http://localhost:8080/api/v1/public/properties';
+const API_BASE = `${environment.apiBaseUrl}/api/v1/public/properties`;
 
 @Injectable({ providedIn: 'root' })
 export class PropertyService {

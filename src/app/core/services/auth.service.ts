@@ -4,8 +4,9 @@ import { Observable, of, delay, tap, catchError, throwError } from 'rxjs';
 import { USE_MOCK } from '../mocks/app.mock';
 import { MOCK_CREDENTIALS } from '../mocks/auth.mock';
 import { AuthResponse, LoginRequest, UserResponse } from '../models/auth.model';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = 'http://localhost:8080/api/v1/auth';
+const API_BASE = `${environment.apiBaseUrl}/api/v1/auth`;
 const STORAGE_KEY_ACCESS = 'immo_access_token';
 const STORAGE_KEY_REFRESH = 'immo_refresh_token';
 const STORAGE_KEY_USER = 'immo_user';

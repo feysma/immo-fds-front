@@ -11,8 +11,9 @@ import { USE_MOCK } from '../mocks/app.mock';
 import { getMockPage, MOCK_PROPERTY_TYPES, MOCK_PROVINCES, MOCK_PROPERTIES } from '../mocks/properties.mock';
 import { getMockDetail, MOCK_PROPERTY_DETAILS } from '../mocks/property-detail.mock';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = 'http://localhost:8080/api/v1/admin/properties';
+const API_BASE = `${environment.apiBaseUrl}/api/v1/admin/properties`;
 
 export interface AdminPropertySearchParams {
   propertyType?: string;
@@ -209,14 +210,14 @@ export class AdminPropertyService {
   getPropertyTypes(): Observable<EnumValueResponse[]> {
     if (USE_MOCK) return of(MOCK_PROPERTY_TYPES);
     return this.http.get<EnumValueResponse[]>(
-      'http://localhost:8080/api/v1/public/properties/types'
+      `${environment.apiBaseUrl}/api/v1/public/properties/types`
     );
   }
 
   getProvinces(): Observable<EnumValueResponse[]> {
     if (USE_MOCK) return of(MOCK_PROVINCES);
     return this.http.get<EnumValueResponse[]>(
-      'http://localhost:8080/api/v1/public/properties/provinces'
+      `${environment.apiBaseUrl}/api/v1/public/properties/provinces`
     );
   }
 }
