@@ -1,0 +1,327 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ===== ÉTAT CHARGEMENT ===== -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="flex flex-col items-center gap-3 text-gray-400">
+        <svg class="animate-spin w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-sm">Chargement du bien...</span>
+      </div>
+    </div>
+  }
+
+  <!-- ===== 404 ===== -->
+  @if (notFound()) {
+    <div class="flex flex-col items-center justify-center min-h-screen text-center px-4">
+      <div class="text-gray-300 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-700 mb-2">Bien introuvable</h1>
+      <p class="text-gray-500 mb-6">Ce bien n'existe pas ou n'est plus disponible.</p>
+      <button (click)="goBack()" class="px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors text-sm">
+        Retour aux résultats
+      </button>
+    </div>
+  }
+
+  <!-- ===== CONTENU ===== -->
+  @if (!isLoading() && !notFound() && property(); as p) {
+
+    <!-- Barre de navigation -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
+        <button
+          (click)="goBack()"
+          class="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0"
+          aria-label="Retour"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+        </button>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs text-gray-400 truncate">{{ typeLabel() }} · {{ p.city }}</p>
+          <h1 class="text-sm font-semibold text-gray-900 truncate">{{ p.title }}</h1>
+        </div>
+        <!-- Prix dans la nav (visible sur mobile) -->
+        <div class="flex-shrink-0 text-right sm:hidden">
+          <p class="text-base font-bold text-gray-900">{{ p.price | currency:'EUR':'symbol':'1.0-0' }}</p>
+          @if (!isSale()) { <p class="text-xs text-gray-500">/mois</p> }
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+      <!-- ===== LAYOUT DEUX COLONNES (desktop) ===== -->
+      <div class="lg:grid lg:grid-cols-3 lg:gap-8">
+
+        <!-- COLONNE GAUCHE : galerie + description (2/3) -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- === GALERIE === -->
+          <div class="space-y-3">
+
+            <!-- Photo principale -->
+            <div class="relative aspect-[16/9] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+
+              @if (hasImages() && activeImageUrl()) {
+                <img
+                  [src]="activeImageUrl()!"
+                  [alt]="p.title"
+                  class="w-full h-full object-cover"
+                />
+                <!-- Flèches navigation (uniquement si > 1 photo) -->
+                @if (p.images.length > 1) {
+                  <button
+                    (click)="prevImage()"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
+                    aria-label="Photo précédente"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="nextImage()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
+                    aria-label="Photo suivante"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </button>
+                  <!-- Compteur -->
+                  <span class="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full">
+                    {{ activeImageIndex() + 1 }} / {{ p.images.length }}
+                  </span>
+                }
+              } @else {
+                <!-- Placeholder selon le type de bien -->
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200">
+                  <div class="text-gray-300 mb-2">
+                    <app-property-placeholder [propertyType]="p.propertyType" svgClass="w-20 h-20" />
+                  </div>
+                  <p class="text-gray-400 text-sm">Aucune photo disponible</p>
+                </div>
+              }
+            </div>
+
+            <!-- Vignettes -->
+            @if (p.images.length > 1) {
+              <div class="flex gap-2 overflow-x-auto pb-1">
+                @for (img of p.images; track img.id; let i = $index) {
+                  <button
+                    (click)="setActiveImage(i)"
+                    class="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all"
+                    [class]="i === activeImageIndex() ? 'border-primary-500' : 'border-transparent opacity-60 hover:opacity-100'"
+                  >
+                    <img
+                      [src]="getImageUrl(p.reference, img.id)"
+                      [alt]="'Photo ' + (i + 1)"
+                      class="w-full h-full object-cover"
+                    />
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- === DESCRIPTION === -->
+          @if (p.description) {
+            <section class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h2 class="text-base font-semibold text-gray-900 mb-3">Description</h2>
+              <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ p.description }}</p>
+            </section>
+          }
+
+          <!-- === CARACTÉRISTIQUES DÉTAILLÉES === -->
+          <section class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-base font-semibold text-gray-900 mb-4">Caractéristiques</h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+              @if (p.surface) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Surface</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.surface }} m²</span>
+                </div>
+              }
+              @if (p.bedrooms != null) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Chambres</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.bedrooms }}</span>
+                </div>
+              }
+              @if (p.bathrooms != null) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Salles de bain</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.bathrooms }}</span>
+                </div>
+              }
+              @if (p.rooms != null) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Pièces</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.rooms }}</span>
+                </div>
+              }
+              @if (p.floors != null) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Niveaux</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.floors }}</span>
+                </div>
+              }
+              @if (p.constructionYear) {
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs text-gray-400 uppercase tracking-wide">Année</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ p.constructionYear }}</span>
+                </div>
+              }
+
+            </div>
+
+            <!-- Équipements -->
+            @if (amenities().length > 0) {
+              <div class="mt-5 pt-5 border-t border-gray-100">
+                <h3 class="text-xs text-gray-400 uppercase tracking-wide mb-3">Équipements</h3>
+                <div class="flex flex-wrap gap-2">
+                  @for (amenity of amenities(); track amenity.label) {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 text-xs font-medium rounded-full border border-primary-100">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      {{ amenity.label }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </section>
+
+          <!-- === LOCALISATION === -->
+          <section class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-base font-semibold text-gray-900 mb-3">Localisation</h2>
+            <div class="flex items-start gap-2 text-sm text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+              </svg>
+              <div>
+                <p class="font-medium text-gray-900">{{ fullAddress() }}</p>
+                <p class="text-gray-500">{{ provinceLabel() }}</p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- COLONNE DROITE : infos clés + CTA (1/3) -->
+        <div class="lg:col-span-1 mt-6 lg:mt-0">
+          <div class="sticky top-20 space-y-4">
+
+            <!-- Carte prix & type -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+
+              <!-- Badge transaction -->
+              <span
+                class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-3"
+                [class]="isSale() ? 'bg-primary-100 text-primary-700' : 'bg-emerald-100 text-emerald-700'"
+              >
+                {{ isSale() ? 'Vente' : 'Location' }}
+              </span>
+
+              <!-- Prix -->
+              <div class="mb-1">
+                <span class="text-3xl font-bold text-gray-900">
+                  {{ p.price | currency:'EUR':'symbol':'1.0-0' }}
+                </span>
+                @if (!isSale()) {
+                  <span class="text-gray-500 text-sm ml-1">/ mois</span>
+                }
+              </div>
+
+              <!-- Type -->
+              <p class="text-sm text-gray-500 mb-4">{{ typeLabel() }} · {{ p.city }}</p>
+
+              <!-- Stats rapides -->
+              <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600 pb-4 border-b border-gray-100 mb-4">
+                @if (p.surface) {
+                  <span class="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                    {{ p.surface }} m²
+                  </span>
+                }
+                @if (p.bedrooms != null) {
+                  <span class="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12V6a.75.75 0 0 1 .75-.75h18a.75.75 0 0 1 .75.75v6m-19.5 0a.75.75 0 0 0-.75.75v3.75m21 0V12.75a.75.75 0 0 0-.75-.75m-19.5 3.75h21" />
+                    </svg>
+                    {{ p.bedrooms }} ch.
+                  </span>
+                }
+                @if (p.bathrooms != null) {
+                  <span class="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5a7.5 7.5 0 0 1 15 0v.75c0 .621.504 1.125 1.125 1.125h.375a.75.75 0 0 1 0 1.5H4.5a.75.75 0 0 1 0-1.5h.375A1.125 1.125 0 0 0 6 11.25V10.5Z" />
+                    </svg>
+                    {{ p.bathrooms }} sdb.
+                  </span>
+                }
+              </div>
+
+              <!-- PEB -->
+              @if (energyLabel()) {
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="text-sm text-gray-500">Certificat PEB :</span>
+                  <span class="text-xs font-bold px-2.5 py-1 rounded" [class]="energyClass()">
+                    {{ energyLabel() }}
+                  </span>
+                </div>
+              }
+
+              <!-- Référence -->
+              <p class="text-xs text-gray-400">Réf. {{ p.reference }}</p>
+            </div>
+
+            <!-- CTA -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 space-y-3">
+              <button
+                (click)="requestVisit()"
+                class="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                Demander une visite
+              </button>
+              <button
+                (click)="contact()"
+                class="w-full py-3 px-4 bg-white hover:bg-gray-50 active:scale-[0.98] text-gray-700 font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-gray-200"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+                Nous contacter
+              </button>
+            </div>
+
+            <!-- Date de publication -->
+            <p class="text-xs text-center text-gray-400">
+              Publié le {{ p.createdAt | date:'d MMMM yyyy' : undefined : 'fr-BE' }}
+            </p>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  }
+
+</div>

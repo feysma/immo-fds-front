@@ -65,6 +65,47 @@ export interface PropertySummaryResponse {
   createdAt: string;
 }
 
+export interface PropertyImageResponse {
+  id: number;
+  fileName: string;
+  contentType: string;
+  displayOrder: number;
+  isPrimary: boolean;
+}
+
+export interface PropertyDetailResponse {
+  reference: string;
+  title: string;
+  description: string | null;
+  propertyType: string;
+  transactionType: string;
+  status: string;
+  price: number;
+  surface: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  rooms: number | null;
+  floors: number | null;
+  constructionYear: number | null;
+  energyRating: string | null;
+  garden: boolean;
+  garage: boolean;
+  terrace: boolean;
+  basement: boolean;
+  elevator: boolean;
+  furnished: boolean;
+  street: string;
+  number: string | null;
+  postalCode: string;
+  city: string;
+  province: string;
+  latitude: number | null;
+  longitude: number | null;
+  images: PropertyImageResponse[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PageResponse<T> {
   content: T[];
   page: number;

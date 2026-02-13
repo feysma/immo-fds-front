@@ -3,6 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { PropertySummaryResponse } from '../../../core/models/property.model';
 import { PropertyService } from '../../../core/services/property.service';
+import { PropertyPlaceholderComponent } from '../property-placeholder/property-placeholder.component';
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
   HOUSE: 'Maison',
@@ -19,7 +20,7 @@ const PROPERTY_TYPE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-property-card',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, PropertyPlaceholderComponent],
   templateUrl: './property-card.component.html',
   styleUrl: './property-card.component.scss',
 })

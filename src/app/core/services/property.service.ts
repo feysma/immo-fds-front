@@ -4,11 +4,13 @@ import { Observable, of, delay } from 'rxjs';
 import {
   EnumValueResponse,
   PageResponse,
+  PropertyDetailResponse,
   PropertySearchParams,
   PropertySummaryResponse,
 } from '../models/property.model';
 import { USE_MOCK } from '../mocks/app.mock';
 import { getMockPage, MOCK_PROPERTY_TYPES, MOCK_PROVINCES } from '../mocks/properties.mock';
+import { getMockDetail } from '../mocks/property-detail.mock';
 
 const API_BASE = 'http://localhost:8080/api/v1/public/properties';
 
@@ -47,6 +49,17 @@ export class PropertyService {
       return of(MOCK_PROVINCES);
     }
     return this.http.get<EnumValueResponse[]>(`${API_BASE}/provinces`);
+  }
+
+  getPropertyByReference(reference: string): Observable<PropertyDetailResponse> {
+    if (USE_MOCK) {
+      const detail = getMockDetail(reference);
+      if (!detail) {
+        return new Observable((obs) => obs.error({ status: 404, message: 'Bien introuvable' }));
+      }
+      return of(detail).pipe(delay(400));
+    }
+    return this.http.get<PropertyDetailResponse>(`${API_BASE}/${reference}`);
   }
 
   getImageUrl(reference: string, imageId: number): string {

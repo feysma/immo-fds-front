@@ -12,6 +12,13 @@ export const routes: Routes = [
       import('./features/properties/properties.component').then((m) => m.PropertiesComponent),
   },
   {
+    path: 'properties/:reference',
+    loadComponent: () =>
+      import('./features/property-detail/property-detail.component').then(
+        (m) => m.PropertyDetailComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
