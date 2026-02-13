@@ -10,7 +10,7 @@ import {
 } from '../models/property.model';
 import { USE_MOCK } from '../mocks/app.mock';
 import { getMockPage, MOCK_PROPERTY_TYPES, MOCK_PROVINCES } from '../mocks/properties.mock';
-import { getMockDetail } from '../mocks/property-detail.mock';
+import { getMockDetail, MOCK_IMAGE_URLS } from '../mocks/property-detail.mock';
 
 const API_BASE = 'http://localhost:8080/api/v1/public/properties';
 
@@ -63,6 +63,9 @@ export class PropertyService {
   }
 
   getImageUrl(reference: string, imageId: number): string {
+    if (USE_MOCK) {
+      return MOCK_IMAGE_URLS.get(imageId) ?? `https://placehold.co/1200x800?text=${reference}`;
+    }
     return `${API_BASE}/${reference}/images/${imageId}`;
   }
 }

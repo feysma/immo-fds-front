@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, HostListener, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PropertyService } from '../../core/services/property.service';
@@ -137,12 +137,25 @@ export class PropertyDetailComponent implements OnInit {
 
   prevImage(): void {
     const count = this.property()?.images.length ?? 0;
-    this.activeImageIndex.update((i) => (i - 1 + count) % count);
+    if (count > 1) this.activeImageIndex.update((i) => (i - 1 + count) % count);
   }
 
   nextImage(): void {
     const count = this.property()?.images.length ?? 0;
-    this.activeImageIndex.update((i) => (i + 1) % count);
+    if (count > 1) this.activeImageIndex.update((i) => (i + 1) % count);
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    const count = this.property()?.images.length ?? 0;
+    if (count <= 1) return;
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      this.prevImage();
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      this.nextImage();
+    }
   }
 
   goBack(): void {

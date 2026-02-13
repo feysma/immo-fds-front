@@ -1,5 +1,19 @@
 import { PropertyDetailResponse } from '../models/property.model';
 
+/**
+ * Résolution d'URL d'images pour les mocks.
+ * Clé : imageId (number), Valeur : URL publique de l'image.
+ * Utilisé par PropertyService.getImageUrl() en mode mock.
+ */
+export const MOCK_IMAGE_URLS: Map<number, string> = new Map([
+  // IMM-001 — Maison à Uccle (5 photos)
+  [101, 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&q=80'],
+  [102, 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80'],
+  [103, 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80'],
+  [104, 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80'],
+  [105, 'https://images.unsplash.com/photo-1416331108676-a22ccb276e35?w=1200&q=80'],
+]);
+
 export const MOCK_PROPERTY_DETAILS: PropertyDetailResponse[] = [
   {
     reference: 'IMM-001',
@@ -34,7 +48,13 @@ export const MOCK_PROPERTY_DETAILS: PropertyDetailResponse[] = [
     province: 'BRUXELLES_CAPITALE',
     latitude: 50.7985,
     longitude: 4.3514,
-    images: [],
+    images: [
+      { id: 101, fileName: 'facade.jpg',    contentType: 'image/jpeg', displayOrder: 0, isPrimary: true  },
+      { id: 102, fileName: 'jardin.jpg',    contentType: 'image/jpeg', displayOrder: 1, isPrimary: false },
+      { id: 103, fileName: 'sejour.jpg',    contentType: 'image/jpeg', displayOrder: 2, isPrimary: false },
+      { id: 104, fileName: 'cuisine.jpg',   contentType: 'image/jpeg', displayOrder: 3, isPrimary: false },
+      { id: 105, fileName: 'exterieur.jpg', contentType: 'image/jpeg', displayOrder: 4, isPrimary: false },
+    ],
     createdAt: '2025-01-10T10:00:00Z',
     updatedAt: '2025-01-10T10:00:00Z',
   },

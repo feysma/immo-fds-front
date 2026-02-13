@@ -41,7 +41,7 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     city: 'Uccle',
     province: 'BRUXELLES_CAPITALE',
     energyRating: 'B',
-    primaryImageId: null,
+    primaryImageId: 101,
     createdAt: '2025-01-10T10:00:00Z',
   },
   {
