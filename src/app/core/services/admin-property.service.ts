@@ -5,11 +5,12 @@ import {
   EnumValueResponse,
   PageResponse,
   PropertyDetailResponse,
+  PropertyImageResponse,
   PropertySummaryResponse,
 } from '../models/property.model';
 import { USE_MOCK } from '../mocks/app.mock';
 import { getMockPage, MOCK_PROPERTY_TYPES, MOCK_PROVINCES, MOCK_PROPERTIES } from '../mocks/properties.mock';
-import { getMockDetail, MOCK_PROPERTY_DETAILS } from '../mocks/property-detail.mock';
+import { getMockDetail, MOCK_PROPERTY_DETAILS, MOCK_IMAGE_URLS } from '../mocks/property-detail.mock';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -251,6 +252,106 @@ export class AdminPropertyService {
     return this.http.delete<{ message: string }>(`${API_BASE}/${reference}`, {
       headers: this.authHeaders,
     });
+  }
+
+  // ─── Images ───────────────────────────────────────────────────────────────
+
+  uploadImage(
+    reference: string,
+    file: File,
+    isPrimary = false
+  ): Observable<PropertyImageResponse> {
+    if (USE_MOCK) {
+      const idx = MOCK_PROPERTY_DETAILS.findIndex((p) => p.reference === reference);
+      if (idx === -1) return new Observable((obs) => obs.error({ status: 404 }));
+      const newId = Date.now();
+      const blobUrl = URL.createObjectURL(file);
+      MOCK_IMAGE_URLS.set(newId, blobUrl);
+      const existing = MOCK_PROPERTY_DETAILS[idx].images;
+      const newImg: PropertyImageResponse = {
+        id: newId,
+        fileName: file.name,
+        contentType: file.type,
+        displayOrder: existing.length,
+        isPrimary: isPrimary || existing.length === 0,
+      };
+      // Si isPrimary, retirer le flag des autres
+      const images = isPrimary
+        ? existing.map((i) => ({ ...i, isPrimary: false })).concat(newImg)
+        : existing.concat(newImg);
+      MOCK_PROPERTY_DETAILS[idx] = { ...MOCK_PROPERTY_DETAILS[idx], images };
+      // Sync résumé (primaryImageId)
+      const sumIdx = MOCK_PROPERTIES.findIndex((p) => p.reference === reference);
+      if (sumIdx !== -1 && newImg.isPrimary) {
+        MOCK_PROPERTIES[sumIdx] = { ...MOCK_PROPERTIES[sumIdx], primaryImageId: newId };
+      }
+      return of(newImg).pipe(delay(600));
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('isPrimary', String(isPrimary));
+    return this.http.post<PropertyImageResponse>(`${API_BASE}/${reference}/images`, formData, {
+      headers: this.authHeaders,
+    });
+  }
+
+  deleteImage(reference: string, imageId: number): Observable<{ message: string }> {
+    if (USE_MOCK) {
+      const idx = MOCK_PROPERTY_DETAILS.findIndex((p) => p.reference === reference);
+      if (idx !== -1) {
+        MOCK_PROPERTY_DETAILS[idx] = {
+          ...MOCK_PROPERTY_DETAILS[idx],
+          images: MOCK_PROPERTY_DETAILS[idx].images.filter((i) => i.id !== imageId),
+        };
+        MOCK_IMAGE_URLS.delete(imageId);
+      }
+      return of({ message: 'Image supprimée.' }).pipe(delay(400));
+    }
+    return this.http.delete<{ message: string }>(`${API_BASE}/${reference}/images/${imageId}`, {
+      headers: this.authHeaders,
+    });
+  }
+
+  setPrimaryImage(reference: string, imageId: number): Observable<{ message: string }> {
+    if (USE_MOCK) {
+      const idx = MOCK_PROPERTY_DETAILS.findIndex((p) => p.reference === reference);
+      if (idx !== -1) {
+        MOCK_PROPERTY_DETAILS[idx] = {
+          ...MOCK_PROPERTY_DETAILS[idx],
+          images: MOCK_PROPERTY_DETAILS[idx].images.map((i) => ({
+            ...i,
+            isPrimary: i.id === imageId,
+          })),
+        };
+        const sumIdx = MOCK_PROPERTIES.findIndex((p) => p.reference === reference);
+        if (sumIdx !== -1) {
+          MOCK_PROPERTIES[sumIdx] = { ...MOCK_PROPERTIES[sumIdx], primaryImageId: imageId };
+        }
+      }
+      return of({ message: 'Image principale mise à jour.' }).pipe(delay(300));
+    }
+    return this.http.patch<{ message: string }>(
+      `${API_BASE}/${reference}/images/${imageId}/primary`, {}, { headers: this.authHeaders }
+    );
+  }
+
+  reorderImages(reference: string, imageIds: number[]): Observable<{ message: string }> {
+    if (USE_MOCK) {
+      const idx = MOCK_PROPERTY_DETAILS.findIndex((p) => p.reference === reference);
+      if (idx !== -1) {
+        const imgMap = new Map(MOCK_PROPERTY_DETAILS[idx].images.map((i) => [i.id, i]));
+        MOCK_PROPERTY_DETAILS[idx] = {
+          ...MOCK_PROPERTY_DETAILS[idx],
+          images: imageIds
+            .filter((id) => imgMap.has(id))
+            .map((id, order) => ({ ...imgMap.get(id)!, displayOrder: order })),
+        };
+      }
+      return of({ message: 'Ordre mis à jour.' }).pipe(delay(300));
+    }
+    return this.http.put<{ message: string }>(
+      `${API_BASE}/${reference}/images/reorder`, { imageIds }, { headers: this.authHeaders }
+    );
   }
 
   // ─── Énumérations ─────────────────────────────────────────────────────────

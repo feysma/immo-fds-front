@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -76,6 +76,14 @@ export class AdminPropertyEditComponent implements OnInit {
 
   readonly energyRatingOptions = Object.entries(ENERGY_LABELS).map(([value, label]) => ({ value, label }));
   readonly statusTransitionLabels = STATUS_LABELS;
+
+  // ─── État images ──────────────────────────────────────────────────────────
+  readonly isUploadingImage   = signal(false);
+  readonly uploadError        = signal<string | null>(null);
+  readonly isDeletingImageId  = signal<number | null>(null);
+  readonly isSettingPrimaryId = signal<number | null>(null);
+
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
   // ─── Formulaire ───────────────────────────────────────────────────────────
   readonly form = this.fb.group({
@@ -252,6 +260,90 @@ export class AdminPropertyEditComponent implements OnInit {
       },
       error: () => this.isDeleting.set(false),
     });
+  }
+
+  // ─── Gestion des images ───────────────────────────────────────────────────
+
+  triggerFileInput(): void {
+    this.fileInputRef.nativeElement.value = '';
+    this.fileInputRef.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      this.uploadError.set('Format non supporté. Utilisez JPEG, PNG ou WebP.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.uploadError.set('Fichier trop volumineux (max 10 Mo).');
+      return;
+    }
+
+    this.uploadError.set(null);
+    this.isUploadingImage.set(true);
+    const reference = this.property()!.reference;
+    const isFirst = this.property()!.images.length === 0;
+
+    this.adminService.uploadImage(reference, file, isFirst).subscribe({
+      next: (newImg) => {
+        this.property.update((p) => p ? { ...p, images: [...p.images, newImg] } : p);
+        this.isUploadingImage.set(false);
+      },
+      error: () => {
+        this.uploadError.set("Erreur lors de l'upload de l'image.");
+        this.isUploadingImage.set(false);
+      },
+    });
+  }
+
+  onDeleteImage(imageId: number): void {
+    if (this.isDeletingImageId()) return;
+    this.isDeletingImageId.set(imageId);
+    const reference = this.property()!.reference;
+
+    this.adminService.deleteImage(reference, imageId).subscribe({
+      next: () => {
+        this.property.update((p) =>
+          p ? { ...p, images: p.images.filter((i) => i.id !== imageId) } : p
+        );
+        this.isDeletingImageId.set(null);
+      },
+      error: () => this.isDeletingImageId.set(null),
+    });
+  }
+
+  onSetPrimary(imageId: number): void {
+    if (this.isSettingPrimaryId()) return;
+    this.isSettingPrimaryId.set(imageId);
+    const reference = this.property()!.reference;
+
+    this.adminService.setPrimaryImage(reference, imageId).subscribe({
+      next: () => {
+        this.property.update((p) =>
+          p ? { ...p, images: p.images.map((i) => ({ ...i, isPrimary: i.id === imageId })) } : p
+        );
+        this.isSettingPrimaryId.set(null);
+      },
+      error: () => this.isSettingPrimaryId.set(null),
+    });
+  }
+
+  onMoveImage(index: number, direction: -1 | 1): void {
+    const images = this.property()?.images;
+    if (!images) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= images.length) return;
+
+    const reordered = [...images];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    const updated = reordered.map((img, i) => ({ ...img, displayOrder: i }));
+
+    this.property.update((p) => p ? { ...p, images: updated } : p);
+    this.adminService.reorderImages(this.property()!.reference, updated.map((i) => i.id)).subscribe();
   }
 
   // ─── Navigation ───────────────────────────────────────────────────────────
