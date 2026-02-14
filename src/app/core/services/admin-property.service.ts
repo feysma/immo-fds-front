@@ -29,6 +29,8 @@ export interface AdminPropertySearchParams {
   sortDir?: 'asc' | 'desc';
 }
 
+export type PropertyCreateRequest = PropertyUpdateRequest;
+
 export interface PropertyUpdateRequest {
   title: string;
   description?: string;
@@ -109,6 +111,51 @@ export class AdminPropertyService {
       return of({ ...detail }).pipe(delay(300));
     }
     return this.http.get<PropertyDetailResponse>(`${API_BASE}/${reference}`, {
+      headers: this.authHeaders,
+    });
+  }
+
+  // ─── Création ────────────────────────────────────────────────────────────
+  createProperty(body: PropertyCreateRequest): Observable<PropertyDetailResponse> {
+    if (USE_MOCK) {
+      const newRef = `IMM-${String(MOCK_PROPERTY_DETAILS.length + 1).padStart(3, '0')}-NEW`;
+      const now = new Date().toISOString();
+      const created: PropertyDetailResponse = {
+        reference: newRef,
+        title: body.title,
+        description: body.description ?? null,
+        propertyType: body.propertyType,
+        transactionType: body.transactionType,
+        status: 'DRAFT',
+        price: body.price,
+        surface: body.surface ?? null,
+        bedrooms: body.bedrooms ?? null,
+        bathrooms: body.bathrooms ?? null,
+        rooms: body.rooms ?? null,
+        floors: body.floors ?? null,
+        constructionYear: body.constructionYear ?? null,
+        energyRating: body.energyRating ?? null,
+        garden: body.garden,
+        garage: body.garage,
+        terrace: body.terrace,
+        basement: body.basement,
+        elevator: body.elevator,
+        furnished: body.furnished,
+        street: body.street,
+        number: body.number ?? null,
+        postalCode: body.postalCode,
+        city: body.city,
+        province: body.province,
+        latitude: body.latitude ?? null,
+        longitude: body.longitude ?? null,
+        images: [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      MOCK_PROPERTY_DETAILS.push(created);
+      return of(created).pipe(delay(500));
+    }
+    return this.http.post<PropertyDetailResponse>(API_BASE, body, {
       headers: this.authHeaders,
     });
   }

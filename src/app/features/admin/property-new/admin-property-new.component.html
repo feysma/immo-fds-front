@@ -1,0 +1,341 @@
+<div class="page-wrapper">
+
+  <!-- Header sticky -->
+  <header class="sticky-header">
+    <div class="sticky-header__inner">
+      <button
+        (click)="goBack()"
+        class="btn-back"
+        aria-label="Retour à la liste"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+      </button>
+      <div class="sticky-header__title">
+        <p class="sticky-header__title-sub">Administration · Biens</p>
+        <h1 class="sticky-header__title-main">Nouveau bien</h1>
+      </div>
+      <span class="flex-shrink-0 badge-status badge-draft">Brouillon</span>
+    </div>
+  </header>
+
+  <div class="container-app py-8">
+    <div class="layout-detail items-start">
+
+      <!-- ── Colonne gauche : formulaire (2/3) ──────────────────────────── -->
+      <div class="layout-detail__main">
+
+        @if (saveError()) {
+          <div class="alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            {{ saveError() }}
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSave()" novalidate class="space-y-6">
+
+          <!-- ── Section : Informations principales ──────────────────── -->
+          <section class="section-card-admin">
+            <h2 class="section-card-admin__title">Informations principales</h2>
+            <div class="space-y-4">
+
+              <!-- Titre -->
+              <div>
+                <label class="form-label">
+                  Titre <span class="text-red-400">*</span>
+                </label>
+                <input type="text" formControlName="title"
+                  class="form-input"
+                  [class]="hasError('title') ? 'form-input--invalid' : 'form-input--valid'"
+                />
+                @if (hasError('title')) {
+                  <p class="form-error">Le titre est requis.</p>
+                }
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label class="form-label">Description</label>
+                <textarea formControlName="description" rows="5" class="form-textarea"></textarea>
+              </div>
+
+              <!-- Type de bien + Transaction -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">
+                    Type de bien <span class="text-red-400">*</span>
+                  </label>
+                  <select formControlName="propertyType"
+                    class="form-select"
+                    [class]="hasError('propertyType') ? 'form-select--invalid' : ''"
+                  >
+                    <option value="">-- Sélectionner --</option>
+                    @for (t of propertyTypes(); track t.value) {
+                      <option [value]="t.value">{{ t.label }}</option>
+                    }
+                  </select>
+                  @if (hasError('propertyType')) {
+                    <p class="form-error">Le type de bien est requis.</p>
+                  }
+                </div>
+                <div>
+                  <label class="form-label">
+                    Transaction <span class="text-red-400">*</span>
+                  </label>
+                  <select formControlName="transactionType"
+                    class="form-select"
+                    [class]="hasError('transactionType') ? 'form-select--invalid' : ''"
+                  >
+                    <option value="">-- Sélectionner --</option>
+                    <option value="SALE">Vente</option>
+                    <option value="RENT">Location</option>
+                  </select>
+                  @if (hasError('transactionType')) {
+                    <p class="form-error">Le type de transaction est requis.</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Prix -->
+              <div>
+                <label class="form-label">
+                  Prix (€) <span class="text-red-400">*</span>
+                </label>
+                <input type="number" formControlName="price" min="1"
+                  class="form-input"
+                  [class]="hasError('price') ? 'form-input--invalid' : 'form-input--valid'"
+                />
+                @if (hasError('price')) {
+                  <p class="form-error">Le prix doit être supérieur à 0.</p>
+                }
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ── Section : Caractéristiques ──────────────────────────── -->
+          <section class="section-card-admin">
+            <h2 class="section-card-admin__title">Caractéristiques</h2>
+            <div class="grid-2-cols mb-5">
+
+              <div>
+                <label class="form-label">Surface (m²)</label>
+                <input type="number" formControlName="surface" min="0" class="form-input form-input--valid" />
+              </div>
+              <div>
+                <label class="form-label">Chambres</label>
+                <input type="number" formControlName="bedrooms" min="0" class="form-input form-input--valid" />
+              </div>
+              <div>
+                <label class="form-label">Salles de bain</label>
+                <input type="number" formControlName="bathrooms" min="0" class="form-input form-input--valid" />
+              </div>
+              <div>
+                <label class="form-label">Pièces</label>
+                <input type="number" formControlName="rooms" min="0" class="form-input form-input--valid" />
+              </div>
+              <div>
+                <label class="form-label">Niveaux</label>
+                <input type="number" formControlName="floors" min="0" class="form-input form-input--valid" />
+              </div>
+              <div>
+                <label class="form-label">Année de construction</label>
+                <input type="number" formControlName="constructionYear" min="1800" max="2099" class="form-input form-input--valid" />
+              </div>
+
+            </div>
+
+            <!-- PEB -->
+            <div>
+              <label class="form-label">Certificat PEB</label>
+              <select formControlName="energyRating" class="form-select w-full sm:w-48">
+                <option value="">Non renseigné</option>
+                @for (e of energyRatingOptions; track e.value) {
+                  <option [value]="e.value">{{ e.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Équipements -->
+            <div class="mt-5 pt-5 border-t border-gray-100">
+              <p class="form-label mb-3">Équipements</p>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                @for (item of [
+                  { key: 'garden',   label: 'Jardin' },
+                  { key: 'garage',   label: 'Garage' },
+                  { key: 'terrace',  label: 'Terrasse' },
+                  { key: 'basement', label: 'Cave' },
+                  { key: 'elevator', label: 'Ascenseur' },
+                  { key: 'furnished',label: 'Meublé' }
+                ]; track item.key) {
+                  <label class="form-checkbox-label group">
+                    <input type="checkbox" [formControlName]="item.key" class="form-checkbox" />
+                    <span class="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{{ item.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          </section>
+
+          <!-- ── Section : Localisation ───────────────────────────────── -->
+          <section class="section-card-admin">
+            <h2 class="section-card-admin__title">Localisation</h2>
+            <div class="space-y-4">
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2">
+                  <label class="form-label">
+                    Rue <span class="text-red-400">*</span>
+                  </label>
+                  <input type="text" formControlName="street"
+                    class="form-input"
+                    [class]="hasError('street') ? 'form-input--invalid' : 'form-input--valid'"
+                  />
+                </div>
+                <div>
+                  <label class="form-label">N°</label>
+                  <input type="text" formControlName="number" class="form-input form-input--valid" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="form-label">
+                    Code postal <span class="text-red-400">*</span>
+                  </label>
+                  <input type="text" formControlName="postalCode" maxlength="4"
+                    class="form-input"
+                    [class]="hasError('postalCode') ? 'form-input--invalid' : 'form-input--valid'"
+                  />
+                  @if (hasError('postalCode')) {
+                    <p class="form-error">Code postal belge invalide (4 chiffres).</p>
+                  }
+                </div>
+                <div>
+                  <label class="form-label">
+                    Ville <span class="text-red-400">*</span>
+                  </label>
+                  <input type="text" formControlName="city"
+                    class="form-input"
+                    [class]="hasError('city') ? 'form-input--invalid' : 'form-input--valid'"
+                  />
+                </div>
+                <div>
+                  <label class="form-label">
+                    Province <span class="text-red-400">*</span>
+                  </label>
+                  <select formControlName="province"
+                    class="form-select"
+                    [class]="hasError('province') ? 'form-select--invalid' : ''"
+                  >
+                    <option value="">-- Province --</option>
+                    @for (prov of provinces(); track prov.value) {
+                      <option [value]="prov.value">{{ prov.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <!-- Coordonnées GPS (optionnelles) -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Latitude</label>
+                  <input type="number" formControlName="latitude" step="0.0001" class="form-input form-input--valid" />
+                </div>
+                <div>
+                  <label class="form-label">Longitude</label>
+                  <input type="number" formControlName="longitude" step="0.0001" class="form-input form-input--valid" />
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ── Bouton Créer ────────────────────────────────────────── -->
+          <div class="flex items-center justify-end gap-3 pb-8">
+            <button
+              type="button"
+              (click)="goBack()"
+              class="btn-secondary"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="form.invalid || isSaving()"
+              class="btn-primary-submit"
+              [class]="form.invalid || isSaving()
+                ? 'bg-primary-400 text-white cursor-not-allowed'
+                : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white shadow-sm'"
+            >
+              @if (isSaving()) {
+                <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Création en cours...
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Créer le bien
+              }
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ── Colonne droite : aide ───────────────────────────────────────── -->
+      <div class="layout-detail__aside space-y-5">
+        <div class="layout-detail__aside-sticky">
+
+          <!-- ── Info statut initial ──────────────────────────────────── -->
+          <section class="section-card-side">
+            <h2 class="section-card-side__title">Statut initial</h2>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="badge-status-lg badge-draft">Brouillon</span>
+            </div>
+            <p class="text-xs text-gray-500 leading-relaxed">
+              Tout nouveau bien est créé en statut <strong>Brouillon</strong>.
+              Il n'est pas visible sur le site public tant qu'il n'est pas publié.
+            </p>
+          </section>
+
+          <!-- ── Rappel champs obligatoires ───────────────────────────── -->
+          <section class="section-card-side">
+            <h2 class="section-card-side__title">Champs obligatoires</h2>
+            <ul class="text-xs text-gray-500 space-y-1.5">
+              <li class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0"></span>
+                Titre
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0"></span>
+                Type de bien
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0"></span>
+                Type de transaction
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0"></span>
+                Prix
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0"></span>
+                Rue, code postal, ville, province
+              </li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

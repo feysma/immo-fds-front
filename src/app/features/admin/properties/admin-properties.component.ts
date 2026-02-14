@@ -98,6 +98,10 @@ export class AdminPropertiesComponent implements OnInit {
     this.router.navigate(['/admin/dashboard']);
   }
 
+  createNew(): void {
+    this.router.navigate(['/admin/properties/new']);
+  }
+
   administrer(reference: string): void {
     this.router.navigate(['/admin/properties', reference]);
   }

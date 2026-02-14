@@ -32,6 +32,11 @@ export const adminRoutes: Routes = [
           import('./properties/admin-properties.component').then((m) => m.AdminPropertiesComponent),
       },
       {
+        path: 'properties/new',
+        loadComponent: () =>
+          import('./property-new/admin-property-new.component').then((m) => m.AdminPropertyNewComponent),
+      },
+      {
         path: 'properties/:reference',
         loadComponent: () =>
           import('./property-edit/admin-property-edit.component').then((m) => m.AdminPropertyEditComponent),
