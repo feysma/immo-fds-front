@@ -186,15 +186,62 @@
             <div class="space-y-4">
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="sm:col-span-2">
+
+                <!-- Rue + dropdown autocomplete -->
+                <div class="sm:col-span-2 relative">
                   <label class="form-label">
                     Rue <span class="text-red-400">*</span>
                   </label>
-                  <input type="text" formControlName="street"
+                  <input
+                    type="text"
+                    formControlName="street"
                     class="form-input"
                     [class]="hasError('street') ? 'form-input--invalid' : 'form-input--valid'"
+                    autocomplete="off"
+                    (input)="onStreetInput($event)"
                   />
+
+                  <!-- Dropdown suggestions -->
+                  @if (showDropdown()) {
+                    <div
+                      class="absolute z-50 left-0 right-0 top-full mt-1
+                             bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+                      role="listbox"
+                      aria-label="Suggestions d'adresse"
+                    >
+                      @if (isSearching()) {
+                        <div class="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400">
+                          <svg class="animate-spin w-4 h-4 flex-shrink-0 text-primary-500"
+                               xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                          </svg>
+                          Recherche en cours...
+                        </div>
+                      } @else if (suggestions().length === 0) {
+                        <div class="px-3 py-2.5 text-sm text-gray-400 italic">
+                          Aucun résultat
+                        </div>
+                      } @else {
+                        @for (s of suggestions(); track s.displayName) {
+                          <button
+                            type="button"
+                            role="option"
+                            class="w-full text-left px-3 py-2.5 text-sm text-gray-700
+                                   hover:bg-primary-50 hover:text-primary-700
+                                   transition-colors border-b border-gray-100 last:border-0
+                                   focus:outline-none focus:bg-primary-50"
+                            (click)="selectSuggestion(s)"
+                          >
+                            <span class="font-medium">{{ s.road }}{{ s.houseNumber ? ' ' + s.houseNumber : '' }}</span>
+                            <span class="text-gray-400 ml-1">— {{ s.postcode }} {{ s.city }}</span>
+                          </button>
+                        }
+                      }
+                    </div>
+                  }
                 </div>
+
                 <div>
                   <label class="form-label">N°</label>
                   <input type="text" formControlName="number" class="form-input form-input--valid" />

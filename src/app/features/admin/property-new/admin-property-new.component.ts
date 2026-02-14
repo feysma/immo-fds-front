@@ -1,11 +1,22 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy,
+  inject, signal,
+  ElementRef, HostListener,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, EMPTY } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import {
   AdminPropertyService,
   PropertyCreateRequest,
 } from '../../../core/services/admin-property.service';
 import { EnumValueResponse } from '../../../core/models/property.model';
+import {
+  AddressAutocompleteService,
+  AddressSuggestion,
+} from '../../../core/services/address-autocomplete.service';
+import { USE_ADDRESS_AUTOCOMPLETE } from '../../../core/mocks/app.mock';
 
 const ENERGY_LABELS: Record<string, string> = {
   A_PLUS_PLUS: 'A++', A_PLUS: 'A+', A: 'A', B: 'B',
@@ -18,18 +29,29 @@ const ENERGY_LABELS: Record<string, string> = {
   templateUrl: './admin-property-new.component.html',
   styleUrl: './admin-property-new.component.scss',
 })
-export class AdminPropertyNewComponent implements OnInit {
+export class AdminPropertyNewComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(AdminPropertyService);
+  private readonly autocompleteService = inject(AddressAutocompleteService);
+  private readonly elementRef = inject(ElementRef);
 
-  // ─── État ─────────────────────────────────────────────────────────────────
+  // ─── État formulaire ──────────────────────────────────────────────────────
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
   readonly propertyTypes = signal<EnumValueResponse[]>([]);
   readonly provinces = signal<EnumValueResponse[]>([]);
 
   readonly energyRatingOptions = Object.entries(ENERGY_LABELS).map(([value, label]) => ({ value, label }));
+
+  // ─── État autocomplete ────────────────────────────────────────────────────
+  readonly autocompleteEnabled = USE_ADDRESS_AUTOCOMPLETE;
+  readonly suggestions      = signal<AddressSuggestion[]>([]);
+  readonly isSearching      = signal(false);
+  readonly showDropdown     = signal(false);
+
+  private readonly streetInput$ = new Subject<string>();
+  private readonly destroy$     = new Subject<void>();
 
   // ─── Formulaire ───────────────────────────────────────────────────────────
   readonly form = this.fb.group({
@@ -67,6 +89,67 @@ export class AdminPropertyNewComponent implements OnInit {
   ngOnInit(): void {
     this.adminService.getPropertyTypes().subscribe((t) => this.propertyTypes.set(t));
     this.adminService.getProvinces().subscribe((p) => this.provinces.set(p));
+
+    if (this.autocompleteEnabled) {
+      this.streetInput$
+        .pipe(
+          debounceTime(400),
+          distinctUntilChanged(),
+          switchMap((query) => {
+            if (query.length < 3) {
+              this.suggestions.set([]);
+              this.showDropdown.set(false);
+              this.isSearching.set(false);
+              return EMPTY;
+            }
+            this.isSearching.set(true);
+            this.showDropdown.set(true);
+            return this.autocompleteService.search(query);
+          }),
+          takeUntil(this.destroy$)
+        )
+        .subscribe((results) => {
+          this.isSearching.set(false);
+          this.suggestions.set(results);
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ─── Autocomplete ─────────────────────────────────────────────────────────
+  onStreetInput(event: Event): void {
+    if (!this.autocompleteEnabled) return;
+    this.streetInput$.next((event.target as HTMLInputElement).value);
+  }
+
+  selectSuggestion(suggestion: AddressSuggestion): void {
+    this.form.patchValue({
+      street:     suggestion.road,
+      number:     suggestion.houseNumber,
+      postalCode: suggestion.postcode,
+      city:       suggestion.city,
+      province:   suggestion.province ?? '',
+      latitude:   suggestion.lat,
+      longitude:  suggestion.lon,
+    });
+    this.showDropdown.set(false);
+    this.suggestions.set([]);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+      this.showDropdown.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.showDropdown.set(false);
   }
 
   // ─── Soumission ───────────────────────────────────────────────────────────
