@@ -1,6 +1,6 @@
 <article
   (click)="navigateToDetail()"
-  class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+  class="card-property group"
 >
 
   <!-- Image / Placeholder -->
@@ -25,17 +25,15 @@
 
     <!-- Badge transaction -->
     <span
-      class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-      [class]="isSale
-        ? 'bg-primary-600 text-white'
-        : 'bg-emerald-500 text-white'"
+      class="absolute top-3 left-3 badge-transaction"
+      [class]="isSale ? 'badge-sale-solid' : 'badge-rent-solid'"
     >
       {{ isSale ? 'Vente' : 'Location' }}
     </span>
 
     <!-- Badge énergie -->
     @if (property().energyRating) {
-      <span class="absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded bg-white/90 text-gray-700 shadow-sm">
+      <span class="badge-peb">
         PEB {{ property().energyRating!.replace('_PLUS_PLUS', '++').replace('_PLUS', '+') }}
       </span>
     }

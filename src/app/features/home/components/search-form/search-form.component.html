@@ -22,13 +22,13 @@
 
     <!-- Type de bien -->
     <div class="flex flex-col gap-1">
-      <label for="propertyType" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+      <label for="propertyType" class="form-label-inline">
         Type de bien
       </label>
       <select
         id="propertyType"
         formControlName="propertyType"
-        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all appearance-none cursor-pointer"
+        class="form-select-public"
       >
         @for (opt of propertyTypeOptions; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
@@ -38,13 +38,13 @@
 
     <!-- Province -->
     <div class="flex flex-col gap-1">
-      <label for="province" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+      <label for="province" class="form-label-inline">
         Province
       </label>
       <select
         id="province"
         formControlName="province"
-        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all appearance-none cursor-pointer"
+        class="form-select-public"
       >
         @for (opt of provinceOptions; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
@@ -54,7 +54,7 @@
 
     <!-- Ville -->
     <div class="flex flex-col gap-1">
-      <label for="city" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+      <label for="city" class="form-label-inline">
         Ville ou code postal
       </label>
       <input
@@ -62,18 +62,18 @@
         type="text"
         formControlName="city"
         placeholder="ex : Bruxelles, 1000..."
-        class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+        class="form-input-public"
       />
     </div>
 
-    <!-- Bouton recherche (ou toggle avancé + recherche) -->
+    <!-- Bouton recherche -->
     <div class="flex flex-col gap-1">
       <span class="text-xs font-medium text-transparent uppercase tracking-wide px-1 select-none">
         &nbsp;
       </span>
       <button
         type="submit"
-        class="w-full rounded-lg bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white font-semibold py-2.5 px-4 text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+        class="btn-primary-lg"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -119,7 +119,7 @@
 
       <!-- Prix min -->
       <div class="flex flex-col gap-1">
-        <label for="minPrice" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        <label for="minPrice" class="form-label-inline">
           Prix min (€)
         </label>
         <input
@@ -128,13 +128,13 @@
           formControlName="minPrice"
           placeholder="ex : 150 000"
           min="0"
-          class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+          class="form-input-public"
         />
       </div>
 
       <!-- Prix max -->
       <div class="flex flex-col gap-1">
-        <label for="maxPrice" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        <label for="maxPrice" class="form-label-inline">
           Prix max (€)
         </label>
         <input
@@ -143,13 +143,13 @@
           formControlName="maxPrice"
           placeholder="ex : 500 000"
           min="0"
-          class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+          class="form-input-public"
         />
       </div>
 
       <!-- Chambres min -->
       <div class="flex flex-col gap-1">
-        <label for="minBedrooms" class="text-xs font-medium text-gray-500 uppercase tracking-wide px-1">
+        <label for="minBedrooms" class="form-label-inline">
           Chambres min
         </label>
         <div class="flex gap-1">

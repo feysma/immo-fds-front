@@ -1,5 +1,395 @@
-/* Styles globaux SCSS (sans Tailwind - voir tailwind.css) */
+// ─── Tailwind ─────────────────────────────────────────────────────────────────
+@tailwind base;
+@tailwind components;
 
+// ─── Composants UI ────────────────────────────────────────────────────────────
+// Classes composées réutilisables (@apply Tailwind).
+// Couvrent : boutons, formulaires, badges, cartes, alertes, états de chargement.
+
+@layer components {
+
+  // ── Boutons ───────────────────────────────────────────────────────────────
+
+  // Base commune à tous les boutons
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-lg text-sm font-medium transition-colors
+           disabled:cursor-not-allowed;
+  }
+
+  // Primaire plein
+  .btn-primary {
+    @apply btn px-4 py-2
+           bg-primary-600 hover:bg-primary-700 text-white
+           disabled:bg-primary-400;
+  }
+
+  // Primaire grand (CTA pleine largeur)
+  .btn-primary-lg {
+    @apply btn w-full py-3 px-4
+           bg-primary-600 hover:bg-primary-700 active:scale-[0.98]
+           text-white font-semibold rounded-xl shadow-sm
+           disabled:bg-primary-400;
+  }
+
+  // Primaire — état de soumission (avec spinner — la classe est ajoutée via [class] dans le template)
+  .btn-primary-submit {
+    @apply btn px-5 py-2.5
+           bg-primary-600 hover:bg-primary-700 active:scale-[0.98]
+           text-white font-semibold shadow-sm
+           disabled:bg-primary-400 disabled:cursor-not-allowed;
+  }
+
+  // Secondaire / outline
+  .btn-secondary {
+    @apply btn px-4 py-2
+           border border-gray-300 bg-white text-gray-600
+           hover:bg-gray-50;
+  }
+
+  // Secondaire grand
+  .btn-secondary-lg {
+    @apply btn w-full py-3 px-4
+           border border-gray-200 bg-white text-gray-700
+           hover:bg-gray-50 active:scale-[0.98] font-semibold rounded-xl;
+  }
+
+  // Danger / outline rouge
+  .btn-danger {
+    @apply btn w-full py-2
+           border border-red-300 text-red-600
+           hover:bg-red-50;
+  }
+
+  // Danger plein (confirmation)
+  .btn-danger-solid {
+    @apply btn flex-1 py-2
+           bg-red-600 hover:bg-red-700 text-white
+           disabled:opacity-60;
+  }
+
+  // Icône de pagination (prev/next)
+  .btn-page-nav {
+    @apply p-2 rounded-lg border border-gray-200 bg-white
+           text-gray-500 hover:bg-gray-50
+           disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+  }
+
+  // Numéro de page
+  .btn-page-number {
+    @apply w-9 h-9 rounded-lg border text-sm font-medium transition-colors;
+
+    &--active   { @apply border-primary-500 bg-primary-600 text-white; }
+    &--inactive { @apply border-gray-200 text-gray-600 hover:bg-gray-50; }
+  }
+
+  // Bouton retour (flèche ←) présent dans les headers de navigation
+  .btn-back {
+    @apply p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700
+           transition-colors flex-shrink-0 cursor-pointer;
+  }
+
+  // ── Formulaires ───────────────────────────────────────────────────────────
+
+  // Label standard (admin + public)
+  .form-label {
+    @apply block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1;
+  }
+
+  // Label public (search-form — flex gap variant)
+  .form-label-inline {
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wide px-1;
+  }
+
+  // Input de base
+  .form-input {
+    @apply w-full rounded-lg border px-3 py-2.5 text-sm text-gray-900
+           outline-none transition-all;
+
+    &--valid   { @apply border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20; }
+    &--invalid { @apply border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20; }
+  }
+
+  // Input public (search-form — border légère)
+  .form-input-public {
+    @apply w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5
+           text-sm text-gray-800 placeholder-gray-400
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           outline-none transition-all;
+  }
+
+  // Select admin
+  .form-select {
+    @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900
+           bg-white outline-none transition-all
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20;
+
+    &--invalid { @apply border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20; }
+  }
+
+  // Select public (search-form)
+  .form-select-public {
+    @apply w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5
+           text-sm text-gray-800
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           outline-none transition-all appearance-none cursor-pointer;
+  }
+
+  // Textarea
+  .form-textarea {
+    @apply w-full rounded-lg border border-gray-300 px-3 py-2.5
+           text-sm text-gray-900 outline-none transition-all resize-y
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20;
+  }
+
+  // Message d'erreur inline
+  .form-error {
+    @apply text-xs text-red-500 mt-1;
+  }
+
+  // Label checkbox (group doit être ajouté dans le template — non @apply-able)
+  .form-checkbox-label {
+    @apply flex items-center gap-2.5 cursor-pointer select-none;
+  }
+
+  // Checkbox
+  .form-checkbox {
+    @apply w-4 h-4 rounded border-gray-300 text-primary-600
+           focus:ring-primary-500 cursor-pointer;
+  }
+
+  // ── Alertes / Toasts ──────────────────────────────────────────────────────
+
+  // Alerte générique (base)
+  .alert {
+    @apply flex items-center gap-2 text-sm rounded-xl px-4 py-3 border;
+  }
+
+  .alert-success {
+    @apply alert bg-emerald-50 border-emerald-200 text-emerald-700;
+  }
+
+  .alert-error {
+    @apply alert bg-red-50 border-red-200 text-red-700;
+  }
+
+  // Alerte erreur compacte (login — rounded-lg)
+  .alert-error-sm {
+    @apply flex items-center gap-2 bg-red-50 border border-red-200
+           text-red-700 text-sm rounded-lg px-3 py-2.5;
+  }
+
+  // Confirmation en attente (amber — changement de statut)
+  .alert-warning {
+    @apply rounded-lg bg-amber-50 border border-amber-200 p-3 space-y-2.5;
+  }
+
+  // ── Badges ────────────────────────────────────────────────────────────────
+
+  // Badge générique (base commune)
+  .badge {
+    @apply inline-flex items-center rounded-full text-xs font-medium;
+  }
+
+  // Badge statut (taille standard)
+  .badge-status {
+    @apply badge px-2.5 py-0.5;
+  }
+
+  // Badge statut (taille plus grande — panneau droite edit)
+  .badge-status-lg {
+    @apply badge px-3 py-1 text-sm;
+  }
+
+  // Couleurs de statut
+  .badge-draft     { @apply bg-gray-100 text-gray-600; }
+  .badge-published { @apply bg-emerald-100 text-emerald-700; }
+  .badge-sold      { @apply bg-blue-100 text-blue-700; }
+  .badge-rented    { @apply bg-violet-100 text-violet-700; }
+  .badge-archived  { @apply bg-amber-100 text-amber-700; }
+
+  // Badge transaction — plein (sur image de card)
+  .badge-sale-solid { @apply bg-primary-600 text-white; }
+  .badge-rent-solid { @apply bg-emerald-500 text-white; }
+
+  // Badge transaction — pastel (panneau détail)
+  .badge-sale-soft { @apply bg-primary-100 text-primary-700; }
+  .badge-rent-soft { @apply bg-emerald-100 text-emerald-700; }
+
+  // Badge transaction commun (taille)
+  .badge-transaction {
+    @apply badge text-xs font-semibold px-2.5 py-1;
+  }
+
+  // Badge référence (monospace)
+  .badge-ref {
+    @apply text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded;
+  }
+
+  // Badge énergie PEB (overlay sur image)
+  .badge-peb {
+    @apply absolute top-3 right-3 text-xs font-bold px-2 py-1
+           rounded bg-white/90 text-gray-700 shadow-sm;
+  }
+
+  // Badge image principale
+  .badge-primary-img {
+    @apply absolute top-1 left-1 bg-primary-600 text-white
+           text-[10px] font-semibold px-1.5 py-0.5 rounded;
+  }
+
+  // Badge filtre actif (dans la barre de filtres)
+  .badge-filter {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+           text-xs font-medium bg-primary-50 text-primary-700 border border-primary-100;
+  }
+
+  // ── Cartes / Sections ─────────────────────────────────────────────────────
+
+  // Section card publique (property-detail)
+  .section-card {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100;
+  }
+
+  // Titre de section card publique
+  .section-card__title {
+    @apply text-base font-semibold text-gray-900 mb-3;
+  }
+
+  // Section card admin — formulaire (gauche, grands titres)
+  .section-card-admin {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm p-6;
+  }
+
+  // Titre section admin (uppercase, tracking)
+  .section-card-admin__title {
+    @apply text-sm font-semibold text-gray-900 uppercase tracking-wide mb-5;
+  }
+
+  // Section card admin — panneau latéral (droite, plus compact)
+  .section-card-side {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm p-5;
+  }
+
+  // Titre section panneau latéral
+  .section-card-side__title {
+    @apply text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4;
+  }
+
+  // Section danger (border rouge)
+  .section-card-danger {
+    @apply bg-white rounded-xl border border-red-200 shadow-sm p-5;
+  }
+  .section-card-danger__title {
+    @apply text-xs font-semibold text-red-500 uppercase tracking-wide mb-3;
+  }
+
+  // Card de navigation (dashboard) — ajouter "group" dans le template
+  .card-nav {
+    @apply bg-white rounded-xl border border-gray-200 p-6 shadow-sm
+           hover:shadow-md hover:border-primary-300 transition-all
+           cursor-pointer block;
+  }
+
+  // Card bien immobilier (property-card) — ajouter "group" dans le template
+  .card-property {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100
+           overflow-hidden cursor-pointer
+           hover:shadow-md hover:-translate-y-0.5
+           transition-all duration-200;
+  }
+
+  // Container table admin
+  .table-container {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden;
+  }
+
+  // Container filtre admin
+  .filter-container {
+    @apply bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm;
+  }
+
+  // ── Layout ────────────────────────────────────────────────────────────────
+
+  // Wrapper de page standard
+  .page-wrapper {
+    @apply min-h-screen bg-gray-50;
+  }
+
+  // Container centré responsive (max-w-7xl avec paddings horizontaux)
+  .container-app {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  // Header sticky standard (utilisé sur les pages de détail et d'édition)
+  .sticky-header {
+    @apply bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm;
+  }
+
+  // Barre intérieure du sticky-header (h-14, flex, gap-3)
+  .sticky-header__inner {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3;
+  }
+
+  // Bloc titre dans le header (truncate, flex-1)
+  .sticky-header__title {
+    @apply min-w-0 flex-1;
+
+    &-sub  { @apply text-xs text-gray-400 truncate; }
+    &-main { @apply text-sm font-semibold text-gray-900 truncate; }
+  }
+
+  // Layout deux colonnes 2/3 + 1/3 (desktop)
+  .layout-detail {
+    @apply lg:grid lg:grid-cols-3 lg:gap-8;
+  }
+  .layout-detail__main  { @apply lg:col-span-2 space-y-6; }
+  .layout-detail__aside {
+    @apply lg:col-span-1 mt-6 lg:mt-0;
+
+    &-sticky { @apply lg:sticky lg:top-20 space-y-5; }
+  }
+
+  // Grilles responsive standard
+  .grid-4-cols { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3; }
+  .grid-3-cols { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5; }
+  .grid-2-cols { @apply grid grid-cols-2 sm:grid-cols-3 gap-4; }
+
+  // ── États de chargement ───────────────────────────────────────────────────
+
+  // Spinner SVG (icône animée)
+  .spinner {
+    @apply animate-spin;
+
+    &-sm { @apply w-4 h-4; }
+    &-md { @apply w-6 h-6; }
+    &-lg { @apply w-8 h-8; }
+  }
+
+  // Container de chargement centré (pleine hauteur)
+  .loading-state {
+    @apply flex items-center justify-center min-h-[60vh];
+  }
+
+  // Container d'état vide centré
+  .empty-state {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm p-16 text-center;
+
+    &__icon  { @apply w-12 h-12 text-gray-300 mx-auto mb-4; }
+    &__title { @apply text-gray-500 font-medium; }
+    &__desc  { @apply text-gray-400 text-sm mt-1; }
+  }
+
+  // Squelette de chargement (skeleton)
+  .skeleton {
+    @apply bg-gray-200 animate-pulse rounded;
+  }
+
+}
+
+@tailwind utilities;
+
+// ─── Styles globaux ───────────────────────────────────────────────────────────
 html {
   scroll-behavior: smooth;
 }

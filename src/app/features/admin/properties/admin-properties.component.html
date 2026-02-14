@@ -1,11 +1,11 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="container-app py-8">
 
   <!-- En-tête -->
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-3 min-w-0">
       <button
         (click)="goBack()"
-        class="flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        class="btn-back"
         aria-label="Retour au dashboard"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -25,7 +25,7 @@
     <button
       type="button"
       disabled
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium opacity-50 cursor-not-allowed"
+      class="btn-primary opacity-50"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -35,28 +35,28 @@
   </div>
 
   <!-- ── Filtres ─────────────────────────────────────────────────────────── -->
-  <form [formGroup]="filters" (ngSubmit)="onSubmit()" class="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
+  <form [formGroup]="filters" (ngSubmit)="onSubmit()" class="filter-container">
 
     <!-- Ligne 1 : recherche texte + type + transaction + statut -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
 
       <!-- Recherche (ville) -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Ville</label>
+        <label class="form-label">Ville</label>
         <input
           type="text"
           formControlName="search"
           placeholder="Ex: Bruxelles"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+          class="form-input form-input--valid"
         />
       </div>
 
       <!-- Type de bien -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Type de bien</label>
+        <label class="form-label">Type de bien</label>
         <select
           formControlName="propertyType"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+          class="form-select"
         >
           <option value="">Tous les types</option>
           @for (type of propertyTypes(); track type.value) {
@@ -67,10 +67,10 @@
 
       <!-- Transaction -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Transaction</label>
+        <label class="form-label">Transaction</label>
         <select
           formControlName="transactionType"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+          class="form-select"
         >
           <option value="">Vente & Location</option>
           <option value="SALE">Vente</option>
@@ -80,10 +80,10 @@
 
       <!-- Statut -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Statut</label>
+        <label class="form-label">Statut</label>
         <select
           formControlName="status"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+          class="form-select"
         >
           <option value="">Tous les statuts</option>
           <option value="DRAFT">Brouillon</option>
@@ -101,10 +101,10 @@
 
       <!-- Province -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Province</label>
+        <label class="form-label">Province</label>
         <select
           formControlName="province"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+          class="form-select"
         >
           <option value="">Toutes les provinces</option>
           @for (p of provinces(); track p.value) {
@@ -115,35 +115,35 @@
 
       <!-- Prix min -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Prix min (€)</label>
+        <label class="form-label">Prix min (€)</label>
         <input
           type="number"
           formControlName="minPrice"
           placeholder="0"
           min="0"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+          class="form-input form-input--valid"
         />
       </div>
 
       <!-- Prix max -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Prix max (€)</label>
+        <label class="form-label">Prix max (€)</label>
         <input
           type="number"
           formControlName="maxPrice"
           placeholder="Illimité"
           min="0"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+          class="form-input form-input--valid"
         />
       </div>
 
       <!-- Tri -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Trier par</label>
+        <label class="form-label">Trier par</label>
         <div class="flex gap-2">
           <select
             formControlName="sortBy"
-            class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+            class="form-select flex-1"
           >
             <option value="createdAt">Date</option>
             <option value="price">Prix</option>
@@ -151,7 +151,7 @@
           </select>
           <select
             formControlName="sortDir"
-            class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all bg-white"
+            class="form-select w-24"
           >
             <option value="desc">↓</option>
             <option value="asc">↑</option>
@@ -165,7 +165,7 @@
     <div class="flex items-center gap-3">
       <button
         type="submit"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors"
+        class="btn-primary"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -175,7 +175,7 @@
       <button
         type="button"
         (click)="resetFilters()"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium transition-colors"
+        class="btn-secondary"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -190,7 +190,7 @@
 
   @if (isLoading()) {
     <!-- Squelette de chargement -->
-    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="table-container">
       @for (i of [1,2,3,4,5]; track i) {
         <div class="flex items-center gap-4 px-5 py-4 border-b border-gray-100 last:border-0 animate-pulse">
           <div class="w-14 h-14 rounded-lg bg-gray-200 flex-shrink-0"></div>
@@ -207,17 +207,17 @@
 
   } @else if (properties().length === 0) {
     <!-- État vide -->
-    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-16 text-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" class="empty-state__icon" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
       </svg>
-      <p class="text-gray-500 font-medium">Aucun bien trouvé</p>
-      <p class="text-gray-400 text-sm mt-1">Modifiez vos filtres ou ajoutez un nouveau bien.</p>
+      <p class="empty-state__title">Aucun bien trouvé</p>
+      <p class="empty-state__desc">Modifiez vos filtres ou ajoutez un nouveau bien.</p>
     </div>
 
   } @else {
     <!-- Liste des biens -->
-    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="table-container">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[700px]">
           <thead>
@@ -268,7 +268,7 @@
                           <span class="text-xs text-gray-400">· {{ property.bedrooms }} ch.</span>
                         }
                         @if (property.energyRating) {
-                          <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                          <span class="badge-peb">
                             PEB {{ property.energyRating }}
                           </span>
                         }
@@ -279,7 +279,7 @@
 
                 <!-- Référence -->
                 <td class="px-4 py-3.5">
-                  <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  <span class="badge-ref">
                     {{ property.reference }}
                   </span>
                 </td>
@@ -287,7 +287,7 @@
                 <!-- Statut -->
                 <td class="px-4 py-3.5">
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    class="badge-status"
                     [class]="statusClass(property.status)"
                   >
                     {{ statusLabel(property.status) }}
@@ -340,7 +340,7 @@
             type="button"
             (click)="goToPage(currentPage() - 1)"
             [disabled]="currentPage() === 0"
-            class="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="btn-page-nav"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -351,10 +351,8 @@
             <button
               type="button"
               (click)="goToPage(p)"
-              class="w-9 h-9 rounded-lg border text-sm font-medium transition-colors"
-              [class]="p === currentPage()
-                ? 'border-primary-500 bg-primary-600 text-white'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
+              class="btn-page-number"
+              [class]="p === currentPage() ? 'btn-page-number--active' : 'btn-page-number--inactive'"
             >
               {{ p + 1 }}
             </button>
@@ -364,7 +362,7 @@
             type="button"
             (click)="goToPage(currentPage() + 1)"
             [disabled]="currentPage() >= totalPages() - 1"
-            class="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="btn-page-nav"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
