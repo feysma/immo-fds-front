@@ -20,7 +20,7 @@
 
       <div class="flex items-center justify-between mb-1">
         <h1 class="text-xl font-bold text-gray-900">Connexion</h1>
-        @if (isMock) {
+        @if (showDemoCredentials) {
           <button
             type="button"
             (click)="fillMockCredentials()"

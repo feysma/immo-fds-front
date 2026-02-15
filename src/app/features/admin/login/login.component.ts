@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { USE_MOCK } from '../../../core/mocks/app.mock';
+import { USE_DEMO_CREDENTIALS } from '../../../core/mocks/app.mock';
 import { MOCK_CREDENTIALS } from '../../../core/mocks/auth.mock';
 
 @Component({
@@ -16,7 +16,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  readonly isMock = USE_MOCK;
+  readonly showDemoCredentials = USE_DEMO_CREDENTIALS;
 
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);

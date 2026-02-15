@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Feature flags injectés par nginx au démarrage du conteneur (voir entrypoint.sh) -->
+  <!-- En dev local, env.js n'existe pas : app.mock.ts utilise ses valeurs par défaut -->
+  <script src="/env.js" onerror="window.__APP_CONFIG__ = {}"></script>
 </head>
 <body>
   <app-root></app-root>

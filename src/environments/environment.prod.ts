@@ -1,4 +1,9 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.immofds.be',
+  // Valeur injectée au runtime par nginx via env.js (entrypoint.sh).
+  // En Docker : API_URL="" → URLs relatives, nginx proxifie /api/ vers backend:8080.
+  // Fallback '' : même comportement si la variable n'est pas définie.
+  get apiBaseUrl(): string {
+    return (window as any).__APP_CONFIG__?.API_URL ?? '';
+  },
 };
