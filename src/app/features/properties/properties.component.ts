@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { PropertyService } from '../../core/services/property.service';
 import { PropertySearchParams, PropertySummaryResponse } from '../../core/models/property.model';
 import { PropertyCardComponent } from '../../shared/components/property-card/property-card.component';
+import { FooterPublicComponent } from '../../shared/components/footer-public/footer-public.component';
 
 const SORT_OPTIONS = [
   { value: 'createdAt_desc', label: 'Plus récent' },
@@ -46,7 +47,7 @@ const PROVINCE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-properties',
-  imports: [ReactiveFormsModule, PropertyCardComponent],
+  imports: [ReactiveFormsModule, PropertyCardComponent, FooterPublicComponent],
   templateUrl: './properties.component.html',
   styleUrl: './properties.component.scss',
 })
