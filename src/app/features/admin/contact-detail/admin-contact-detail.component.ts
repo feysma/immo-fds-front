@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { AdminContactService } from '../../../core/services/admin-contact.service';
-import { ContactRequestResponse } from '../../../core/models/property.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { ContactNoteResponse, ContactRequestResponse } from '../../../core/models/property.model';
 
 const CONTACT_TYPE_LABELS: Record<string, string> = {
   VISIT_REQUEST:   'Demande de visite',
@@ -38,35 +38,59 @@ const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
 
 @Component({
   selector: 'app-admin-contact-detail',
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [DatePipe],
   templateUrl: './admin-contact-detail.component.html',
   styleUrl: './admin-contact-detail.component.scss',
 })
 export class AdminContactDetailComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
+  private readonly route               = inject(ActivatedRoute);
+  private readonly router              = inject(Router);
   private readonly adminContactService = inject(AdminContactService);
+  private readonly authService         = inject(AuthService);
+
+  readonly currentUser = this.authService.currentUser;
 
   readonly isLoading = signal(true);
-  readonly contact = signal<ContactRequestResponse | null>(null);
-  readonly notFound = signal(false);
+  readonly contact   = signal<ContactRequestResponse | null>(null);
+  readonly notFound  = signal(false);
 
-  // Notes
-  readonly isEditingNotes = signal(false);
-  readonly isSavingNotes = signal(false);
-  readonly notesForm = this.fb.group({ adminNotes: [''] });
+  // ── Statut ────────────────────────────────────────────────────────────────
 
-  // Statut
-  readonly pendingStatus = signal<string | null>(null);
-  readonly isUpdatingStatus = signal(false);
-  readonly statusError = signal<string | null>(null);
+  readonly pendingStatus     = signal<string | null>(null);
+  readonly isUpdatingStatus  = signal(false);
+  readonly statusError       = signal<string | null>(null);
 
-  // Computed
   readonly availableTransitions = computed(() => {
     const c = this.contact();
     return c ? (VALID_STATUS_TRANSITIONS[c.status] ?? []) : [];
   });
+
+  // ── Notes ─────────────────────────────────────────────────────────────────
+
+  readonly notes = computed(() => this.contact()?.notes ?? []);
+
+  readonly lastNote = computed(() => {
+    const n = this.notes();
+    return n.length > 0 ? n[n.length - 1] : null;
+  });
+
+  readonly canEditLastNote = computed(() => {
+    const last = this.lastNote();
+    const user = this.currentUser();
+    return last !== null && user !== null && last.authorId === user.id;
+  });
+
+  // Ajout de note
+  readonly newNoteContent = signal('');
+  readonly isAddingNote   = signal(false);
+  readonly isSavingNote   = signal(false);
+
+  // Édition de la dernière note
+  readonly editingNoteId      = signal<number | null>(null);
+  readonly editingNoteContent = signal('');
+  readonly isSavingEdit       = signal(false);
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -75,7 +99,6 @@ export class AdminContactDetailComponent implements OnInit {
     this.adminContactService.getContact(id).subscribe({
       next: (c) => {
         this.contact.set(c);
-        this.notesForm.patchValue({ adminNotes: c.adminNotes ?? '' });
         this.isLoading.set(false);
       },
       error: () => {
@@ -87,10 +110,10 @@ export class AdminContactDetailComponent implements OnInit {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  typeLabel(type: string): string  { return CONTACT_TYPE_LABELS[type] ?? type; }
-  typeClass(type: string): string  { return CONTACT_TYPE_CLASSES[type] ?? 'bg-gray-100 text-gray-500'; }
-  statusLabel(s: string): string   { return STATUS_LABELS[s] ?? s; }
-  statusClass(s: string): string   { return STATUS_CLASSES[s] ?? 'bg-gray-100 text-gray-500'; }
+  typeLabel(type: string): string { return CONTACT_TYPE_LABELS[type] ?? type; }
+  typeClass(type: string): string { return CONTACT_TYPE_CLASSES[type] ?? 'bg-gray-100 text-gray-500'; }
+  statusLabel(s: string): string  { return STATUS_LABELS[s] ?? s; }
+  statusClass(s: string): string  { return STATUS_CLASSES[s] ?? 'bg-gray-100 text-gray-500'; }
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -128,31 +151,62 @@ export class AdminContactDetailComponent implements OnInit {
     });
   }
 
-  // ── Notes admin ───────────────────────────────────────────────────────────
+  // ── Ajout d'une note ──────────────────────────────────────────────────────
 
-  startEditNotes(): void {
-    this.notesForm.patchValue({ adminNotes: this.contact()?.adminNotes ?? '' });
-    this.isEditingNotes.set(true);
+  openAddNote(): void {
+    this.newNoteContent.set('');
+    this.isAddingNote.set(true);
   }
 
-  cancelEditNotes(): void {
-    this.isEditingNotes.set(false);
+  cancelAddNote(): void {
+    this.isAddingNote.set(false);
   }
 
-  saveNotes(): void {
+  submitAddNote(): void {
+    const content = this.newNoteContent().trim();
     const id = this.contact()?.id;
-    if (!id) return;
+    if (!content || !id) return;
 
-    this.isSavingNotes.set(true);
-    const notes = this.notesForm.value.adminNotes ?? '';
-
-    this.adminContactService.updateNotes(id, notes).subscribe({
-      next: (updated) => {
-        this.contact.set(updated);
-        this.isEditingNotes.set(false);
-        this.isSavingNotes.set(false);
+    this.isSavingNote.set(true);
+    this.adminContactService.addNote(id, content).subscribe({
+      next: (newNote) => {
+        this.contact.update((c) => c ? { ...c, notes: [...c.notes, newNote] } : c);
+        this.isAddingNote.set(false);
+        this.newNoteContent.set('');
+        this.isSavingNote.set(false);
       },
-      error: () => this.isSavingNotes.set(false),
+      error: () => this.isSavingNote.set(false),
+    });
+  }
+
+  // ── Édition de la dernière note ───────────────────────────────────────────
+
+  startEditNote(note: ContactNoteResponse): void {
+    this.editingNoteId.set(note.id);
+    this.editingNoteContent.set(note.content);
+  }
+
+  cancelEditNote(): void {
+    this.editingNoteId.set(null);
+  }
+
+  submitEditNote(): void {
+    const content   = this.editingNoteContent().trim();
+    const noteId    = this.editingNoteId();
+    const contactId = this.contact()?.id;
+    if (!content || !noteId || !contactId) return;
+
+    this.isSavingEdit.set(true);
+    this.adminContactService.updateLastNote(contactId, noteId, content).subscribe({
+      next: (updated) => {
+        this.contact.update((c) => {
+          if (!c) return c;
+          return { ...c, notes: c.notes.map((n) => n.id === updated.id ? updated : n) };
+        });
+        this.editingNoteId.set(null);
+        this.isSavingEdit.set(false);
+      },
+      error: () => this.isSavingEdit.set(false),
     });
   }
 }

@@ -71,47 +71,132 @@
           </div>
         }
 
-        <!-- Notes admin -->
+        <!-- Notes internes -->
         <div class="section-card-admin">
           <div class="flex items-center justify-between mb-5">
             <h2 class="section-card-admin__title mb-0">Notes internes</h2>
-            @if (!isEditingNotes()) {
-              <button (click)="startEditNotes()" type="button" class="btn-secondary text-xs px-3 py-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+            @if (!isAddingNote()) {
+              <button (click)="openAddNote()" type="button" class="btn-secondary text-xs px-3 py-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
+                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Modifier
+                Ajouter une note
               </button>
             }
           </div>
 
-          @if (!isEditingNotes()) {
-            @if (c.adminNotes) {
-              <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ c.adminNotes }}</p>
-            } @else {
-              <p class="text-sm text-gray-400 italic">Aucune note interne.</p>
-            }
-          } @else {
-            <form [formGroup]="notesForm" (ngSubmit)="saveNotes()" class="space-y-3">
+          <!-- Fil de notes -->
+          @if (notes().length === 0 && !isAddingNote()) {
+            <p class="text-sm text-gray-400 italic">Aucune note interne.</p>
+          }
+
+          @if (notes().length > 0) {
+            <div class="space-y-3 mb-4">
+              @for (note of notes(); track note.id; let last = $last) {
+                <div class="rounded-lg border border-gray-100 bg-gray-50 p-3">
+                  <!-- En-tête de la note -->
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                      <!-- Avatar initiales -->
+                      <span class="inline-flex h-6 w-6 items-center justify-center rounded-full
+                                   bg-primary-100 text-primary-700 text-xs font-semibold shrink-0">
+                        {{ note.authorName.charAt(0) }}
+                      </span>
+                      <span class="text-xs font-medium text-gray-700">{{ note.authorName }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs text-gray-400">
+                        {{ note.createdAt | date:'d MMM yyyy, HH:mm' : undefined : 'fr-BE' }}
+                        @if (note.updatedAt !== note.createdAt) {
+                          <span class="italic"> (modifié)</span>
+                        }
+                      </span>
+                      <!-- Bouton modifier : dernière note + auteur connecté -->
+                      @if (last && canEditLastNote() && editingNoteId() !== note.id) {
+                        <button (click)="startEditNote(note)" type="button"
+                                class="text-gray-400 hover:text-primary-600 transition-colors"
+                                title="Modifier cette note">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none"
+                               viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Contenu de la note ou formulaire d'édition -->
+                  @if (editingNoteId() === note.id) {
+                    <div class="space-y-2 mt-1">
+                      <textarea
+                        [value]="editingNoteContent()"
+                        (input)="editingNoteContent.set($any($event.target).value)"
+                        rows="3"
+                        class="form-textarea text-sm"
+                      ></textarea>
+                      <div class="flex gap-2">
+                        <button type="button" (click)="submitEditNote()"
+                                [disabled]="isSavingEdit()"
+                                class="btn-primary-submit text-xs px-3 py-1.5">
+                          @if (isSavingEdit()) {
+                            <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg"
+                                 fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10"
+                                      stroke="currentColor" stroke-width="4"/>
+                              <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                          }
+                          Enregistrer
+                        </button>
+                        <button type="button" (click)="cancelEditNote()" class="btn-secondary text-xs px-3 py-1.5">
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                      {{ note.content }}
+                    </p>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Formulaire ajout nouvelle note -->
+          @if (isAddingNote()) {
+            <div class="space-y-2 pt-3"
+                 [class.border-t]="notes().length > 0"
+                 [class.border-gray-100]="notes().length > 0">
               <textarea
-                formControlName="adminNotes"
-                rows="4"
-                placeholder="Ajouter des notes internes (non visibles par le client)…"
+                [value]="newNoteContent()"
+                (input)="newNoteContent.set($any($event.target).value)"
+                rows="3"
+                placeholder="Nouvelle note interne (non visible par le client)…"
                 class="form-textarea"
+                autofocus
               ></textarea>
               <div class="flex gap-2">
-                <button type="submit" [disabled]="isSavingNotes()" class="btn-primary-submit">
-                  @if (isSavingNotes()) {
-                    <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+                <button type="button" (click)="submitAddNote()"
+                        [disabled]="isSavingNote() || !newNoteContent().trim()"
+                        class="btn-primary-submit">
+                  @if (isSavingNote()) {
+                    <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10"
+                              stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
                   }
-                  Enregistrer
+                  Ajouter la note
                 </button>
-                <button type="button" (click)="cancelEditNotes()" class="btn-secondary">Annuler</button>
+                <button type="button" (click)="cancelAddNote()" class="btn-secondary">Annuler</button>
               </div>
-            </form>
+            </div>
           }
         </div>
 

@@ -203,7 +203,8 @@ CORS is enabled for all origins on `/api/**`.
 | GET | `/` | Query: `status`, `type`, `page`, `size`, `sortBy`, `sortDir` | `PageResponse<ContactRequestResponse>` | 200 |
 | GET | `/{id}` | - | `ContactRequestResponse` | 200 |
 | PATCH | `/{id}/status` | `ContactStatusUpdateRequest` | `ContactRequestResponse` | 200 |
-| PATCH | `/{id}/notes` | `ContactNotesUpdateRequest` | `ContactRequestResponse` | 200 |
+| POST  | `/{id}/notes` | `{ content: string }` | `ContactNoteResponse` | 201 |
+| PATCH | `/{id}/notes/{noteId}` | `{ content: string }` | `ContactNoteResponse` | 200 |
 | DELETE | `/{id}` | - | `MessageResponse` | 200 |
 
 #### Users - `/api/v1/admin/users` (SUPER_ADMIN only)
@@ -312,9 +313,18 @@ interface ContactRequestResponse {
   propertyAddress: string | null;
   propertyType: string | null;
   estimatedPrice: number | null;
-  adminNotes: string | null;
+  notes: ContactNoteResponse[];
   createdAt: string;
   updatedAt: string;
+}
+
+interface ContactNoteResponse {
+  id: number;
+  content: string;
+  authorId: number;
+  authorName: string;  // "Prénom Nom" de l'admin auteur
+  createdAt: string;   // ISO timestamp
+  updatedAt: string;   // ISO timestamp
 }
 
 interface PageResponse<T> {
@@ -438,8 +448,12 @@ interface ContactStatusUpdateRequest {
   status: ContactStatus; // required
 }
 
-interface ContactNotesUpdateRequest {
-  adminNotes?: string;
+interface ContactNoteCreateRequest {
+  content: string;  // required, non-vide
+}
+
+interface ContactNoteUpdateRequest {
+  content: string;  // required, non-vide
 }
 
 interface ImageReorderRequest {

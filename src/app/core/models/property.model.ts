@@ -117,6 +117,15 @@ export interface PageResponse<T> {
 
 // ── Contacts ──────────────────────────────────────────────────────────────────
 
+export interface ContactNoteResponse {
+  id: number;
+  content: string;
+  authorId: number;
+  authorName: string;   // "Prénom Nom" de l'admin auteur
+  createdAt: string;    // ISO timestamp
+  updatedAt: string;    // ISO timestamp
+}
+
 export interface GeneralContactRequest {
   firstName: string;
   lastName: string;
@@ -144,7 +153,7 @@ export interface ContactRequestResponse {
   phone: string | null;
   message: string | null;
   propertyReference: string | null;
-  adminNotes: string | null;
+  notes: ContactNoteResponse[];
   createdAt: string;
   updatedAt: string;
 }

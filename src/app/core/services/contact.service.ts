@@ -23,7 +23,7 @@ export class ContactService {
         phone: dto.phone ?? null,
         message: dto.message,
         propertyReference: null,
-        adminNotes: null,
+        notes: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -44,7 +44,7 @@ export class ContactService {
         phone: dto.phone ?? null,
         message: dto.message ?? null,
         propertyReference: dto.propertyReference,
-        adminNotes: null,
+        notes: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

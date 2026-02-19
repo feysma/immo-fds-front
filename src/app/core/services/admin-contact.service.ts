@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, delay } from 'rxjs';
-import { ContactRequestResponse, PageResponse } from '../models/property.model';
+import { ContactNoteResponse, ContactRequestResponse, PageResponse } from '../models/property.model';
 import { USE_MOCK } from '../mocks/app.mock';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -21,10 +21,6 @@ export interface ContactStatusUpdateRequest {
   status: string;
 }
 
-export interface ContactNotesUpdateRequest {
-  adminNotes?: string;
-}
-
 // ── Mock data ────────────────────────────────────────────────────────────────
 
 const MOCK_CONTACTS: ContactRequestResponse[] = [
@@ -38,7 +34,7 @@ const MOCK_CONTACTS: ContactRequestResponse[] = [
     phone: '+32 470 12 34 56',
     message: 'Je souhaite visiter ce bien le week-end si possible.',
     propertyReference: 'IMM-001',
-    adminNotes: null,
+    notes: [],
     createdAt: '2025-02-10T09:15:00Z',
     updatedAt: '2025-02-10T09:15:00Z',
   },
@@ -52,7 +48,16 @@ const MOCK_CONTACTS: ContactRequestResponse[] = [
     phone: null,
     message: 'Bonjour, est-ce que vous avez des biens disponibles à Liège dans un budget de 250 000 € ?',
     propertyReference: null,
-    adminNotes: 'Rappel planifié pour le 15/02.',
+    notes: [
+      {
+        id: 1,
+        content: 'Rappel planifié pour le 15/02.',
+        authorId: 1,
+        authorName: 'Admin ImmoFDS',
+        createdAt: '2025-02-09T10:00:00Z',
+        updatedAt: '2025-02-09T10:00:00Z',
+      },
+    ],
     createdAt: '2025-02-08T14:30:00Z',
     updatedAt: '2025-02-09T10:00:00Z',
   },
@@ -66,7 +71,16 @@ const MOCK_CONTACTS: ContactRequestResponse[] = [
     phone: '+32 495 98 76 54',
     message: null,
     propertyReference: 'IMM-004',
-    adminNotes: 'Visite effectuée le 05/02. Client intéressé, offre à venir.',
+    notes: [
+      {
+        id: 2,
+        content: 'Visite effectuée le 05/02. Client intéressé, offre à venir.',
+        authorId: 1,
+        authorName: 'Admin ImmoFDS',
+        createdAt: '2025-02-05T16:00:00Z',
+        updatedAt: '2025-02-05T16:00:00Z',
+      },
+    ],
     createdAt: '2025-02-01T11:00:00Z',
     updatedAt: '2025-02-05T16:00:00Z',
   },
@@ -80,7 +94,7 @@ const MOCK_CONTACTS: ContactRequestResponse[] = [
     phone: '+32 471 55 44 33',
     message: 'Je cherche à vendre ma maison à Waterloo. Pouvez-vous m\'estimer le bien ?',
     propertyReference: null,
-    adminNotes: null,
+    notes: [],
     createdAt: '2025-02-12T16:45:00Z',
     updatedAt: '2025-02-12T16:45:00Z',
   },
@@ -94,7 +108,16 @@ const MOCK_CONTACTS: ContactRequestResponse[] = [
     phone: null,
     message: 'Disponible en semaine à partir de 17h ou le samedi matin.',
     propertyReference: 'IMM-002',
-    adminNotes: 'Visite prévue le 18/02 à 17h30.',
+    notes: [
+      {
+        id: 3,
+        content: 'Visite prévue le 18/02 à 17h30.',
+        authorId: 1,
+        authorName: 'Admin ImmoFDS',
+        createdAt: '2025-02-11T15:00:00Z',
+        updatedAt: '2025-02-11T15:00:00Z',
+      },
+    ],
     createdAt: '2025-02-11T10:20:00Z',
     updatedAt: '2025-02-11T15:00:00Z',
   },
@@ -153,7 +176,7 @@ export class AdminContactService {
     if (USE_MOCK) {
       const contact = mockContacts.find((c) => c.id === id);
       if (!contact) return new Observable((obs) => obs.error({ status: 404 }));
-      return of({ ...contact }).pipe(delay(200));
+      return of({ ...contact, notes: [...contact.notes] }).pipe(delay(200));
     }
     return this.http.get<ContactRequestResponse>(`${API_BASE}/${id}`, { headers: this.authHeaders });
   }
@@ -163,18 +186,51 @@ export class AdminContactService {
       const idx = mockContacts.findIndex((c) => c.id === id);
       if (idx === -1) return new Observable((obs) => obs.error({ status: 404 }));
       mockContacts[idx] = { ...mockContacts[idx], status, updatedAt: new Date().toISOString() };
-      return of({ ...mockContacts[idx] }).pipe(delay(300));
+      return of({ ...mockContacts[idx], notes: [...mockContacts[idx].notes] }).pipe(delay(300));
     }
     return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/status`, { status }, { headers: this.authHeaders });
   }
 
-  updateNotes(id: number, adminNotes: string): Observable<ContactRequestResponse> {
+  addNote(contactId: number, content: string): Observable<ContactNoteResponse> {
     if (USE_MOCK) {
-      const idx = mockContacts.findIndex((c) => c.id === id);
-      if (idx === -1) return new Observable((obs) => obs.error({ status: 404 }));
-      mockContacts[idx] = { ...mockContacts[idx], adminNotes, updatedAt: new Date().toISOString() };
-      return of({ ...mockContacts[idx] }).pipe(delay(300));
+      const contact = mockContacts.find((c) => c.id === contactId);
+      if (!contact) return new Observable((obs) => obs.error({ status: 404 }));
+      const currentUser = this.authService.currentUser();
+      const newNote: ContactNoteResponse = {
+        id: Date.now(),
+        content,
+        authorId: currentUser?.id ?? 0,
+        authorName: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim() || 'Admin',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      contact.notes = [...contact.notes, newNote];
+      return of({ ...newNote }).pipe(delay(300));
     }
-    return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/notes`, { adminNotes }, { headers: this.authHeaders });
+    return this.http.post<ContactNoteResponse>(
+      `${API_BASE}/${contactId}/notes`,
+      { content },
+      { headers: this.authHeaders },
+    );
+  }
+
+  updateLastNote(contactId: number, noteId: number, content: string): Observable<ContactNoteResponse> {
+    if (USE_MOCK) {
+      const contact = mockContacts.find((c) => c.id === contactId);
+      if (!contact) return new Observable((obs) => obs.error({ status: 404 }));
+      const noteIdx = contact.notes.findIndex((n) => n.id === noteId);
+      if (noteIdx === -1) return new Observable((obs) => obs.error({ status: 404 }));
+      contact.notes[noteIdx] = {
+        ...contact.notes[noteIdx],
+        content,
+        updatedAt: new Date().toISOString(),
+      };
+      return of({ ...contact.notes[noteIdx] }).pipe(delay(300));
+    }
+    return this.http.patch<ContactNoteResponse>(
+      `${API_BASE}/${contactId}/notes/${noteId}`,
+      { content },
+      { headers: this.authHeaders },
+    );
   }
 }
