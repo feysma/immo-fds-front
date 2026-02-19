@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, delay } from 'rxjs';
 import { ContactRequestResponse, PageResponse } from '../models/property.model';
 import { USE_MOCK } from '../mocks/app.mock';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 const API_BASE = `${environment.apiBaseUrl}/api/v1/admin/contacts`;
 
@@ -105,7 +106,13 @@ let mockContacts = [...MOCK_CONTACTS];
 
 @Injectable({ providedIn: 'root' })
 export class AdminContactService {
-  private readonly http = inject(HttpClient);
+  private readonly http        = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
+  private get authHeaders(): HttpHeaders {
+    const token = this.authService.getAccessToken();
+    return new HttpHeaders({ Authorization: `Bearer ${token ?? ''}` });
+  }
 
   searchContacts(params: AdminContactSearchParams = {}): Observable<PageResponse<ContactRequestResponse>> {
     if (USE_MOCK) {
@@ -139,7 +146,7 @@ export class AdminContactService {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, String(v));
     });
-    return this.http.get<PageResponse<ContactRequestResponse>>(API_BASE, { params: httpParams });
+    return this.http.get<PageResponse<ContactRequestResponse>>(API_BASE, { params: httpParams, headers: this.authHeaders });
   }
 
   getContact(id: number): Observable<ContactRequestResponse> {
@@ -148,7 +155,7 @@ export class AdminContactService {
       if (!contact) return new Observable((obs) => obs.error({ status: 404 }));
       return of({ ...contact }).pipe(delay(200));
     }
-    return this.http.get<ContactRequestResponse>(`${API_BASE}/${id}`);
+    return this.http.get<ContactRequestResponse>(`${API_BASE}/${id}`, { headers: this.authHeaders });
   }
 
   updateStatus(id: number, status: string): Observable<ContactRequestResponse> {
@@ -158,7 +165,7 @@ export class AdminContactService {
       mockContacts[idx] = { ...mockContacts[idx], status, updatedAt: new Date().toISOString() };
       return of({ ...mockContacts[idx] }).pipe(delay(300));
     }
-    return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/status`, { status });
+    return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/status`, { status }, { headers: this.authHeaders });
   }
 
   updateNotes(id: number, adminNotes: string): Observable<ContactRequestResponse> {
@@ -168,6 +175,6 @@ export class AdminContactService {
       mockContacts[idx] = { ...mockContacts[idx], adminNotes, updatedAt: new Date().toISOString() };
       return of({ ...mockContacts[idx] }).pipe(delay(300));
     }
-    return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/notes`, { adminNotes });
+    return this.http.patch<ContactRequestResponse>(`${API_BASE}/${id}/notes`, { adminNotes }, { headers: this.authHeaders });
   }
 }
