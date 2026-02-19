@@ -185,6 +185,11 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   contact(): void {
-    // TODO: navigation vers formulaire de contact
+    this.router.navigate(['/contact'], {
+      state: {
+        listQueryParams: this.listQueryParams,
+        fromPropertyReference: this.property()?.reference ?? null,
+      },
+    });
   }
 }

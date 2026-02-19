@@ -117,6 +117,14 @@ export interface PageResponse<T> {
 
 // ── Contacts ──────────────────────────────────────────────────────────────────
 
+export interface GeneralContactRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  message: string;
+}
+
 export interface VisitRequestDto {
   firstName: string;
   lastName: string;
