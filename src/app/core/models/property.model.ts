@@ -144,6 +144,7 @@ export interface ContactRequestResponse {
   phone: string | null;
   message: string | null;
   propertyReference: string | null;
+  adminNotes: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,0 +1,202 @@
+<div class="container-app py-8">
+
+  <!-- En-tête -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3 min-w-0">
+      <button (click)="goBack()" class="btn-back" aria-label="Retour au dashboard">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+      </button>
+      <div class="min-w-0">
+        <h1 class="text-2xl font-bold text-gray-900">Demandes de contact</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          @if (!isLoading()) {
+            {{ totalElements() }} demande{{ totalElements() > 1 ? 's' : '' }} au total
+          }
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <form [formGroup]="filters" (ngSubmit)="onSubmit()" class="filter-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+      <!-- Type -->
+      <div>
+        <label class="form-label">Type de demande</label>
+        <select formControlName="type" class="form-select">
+          <option value="">Tous les types</option>
+          <option value="VISIT_REQUEST">Demande de visite</option>
+          <option value="GENERAL_CONTACT">Contact général</option>
+          <option value="SELL_YOUR_HOME">Vendre mon bien</option>
+        </select>
+      </div>
+
+      <!-- Statut -->
+      <div>
+        <label class="form-label">Statut</label>
+        <select formControlName="status" class="form-select">
+          <option value="">Tous les statuts</option>
+          <option value="NEW">Nouveau</option>
+          <option value="IN_PROGRESS">En cours</option>
+          <option value="CLOSED">Clôturé</option>
+        </select>
+      </div>
+
+      <!-- Tri -->
+      <div>
+        <label class="form-label">Trier par</label>
+        <select formControlName="sortBy" class="form-select">
+          <option value="createdAt">Date de réception</option>
+          <option value="status">Statut</option>
+        </select>
+      </div>
+
+      <!-- Ordre — labels adaptés selon le critère de tri sélectionné -->
+      <div>
+        <label class="form-label">Ordre</label>
+        <select formControlName="sortDir" class="form-select">
+          @for (opt of sortDirOptions(); track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+    </div>
+
+    <div class="flex gap-2 mt-3">
+      <button type="submit" class="btn-primary">Appliquer</button>
+      <button type="button" (click)="resetFilters()" class="btn-secondary">Réinitialiser</button>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="table-container">
+
+    <!-- Chargement -->
+    @if (isLoading()) {
+      <div class="flex items-center justify-center py-20 text-gray-400">
+        <svg class="spinner spinner-md text-primary-500 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        Chargement…
+      </div>
+    }
+
+    <!-- Liste -->
+    @if (!isLoading() && contacts().length > 0) {
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 bg-gray-50">
+            <th class="admin-th">Contact</th>
+            <th class="admin-th">Type</th>
+            <th class="admin-th hidden md:table-cell">Référence bien</th>
+            <th class="admin-th">Statut</th>
+            <th class="admin-th hidden lg:table-cell">Reçu le</th>
+            <th class="admin-th w-10"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (contact of contacts(); track contact.id) {
+            <tr
+              (click)="openContact(contact.id)"
+              class="admin-tr"
+            >
+              <!-- Contact -->
+              <td class="admin-td">
+                <div class="font-medium text-gray-900">{{ contact.firstName }} {{ contact.lastName }}</div>
+                <div class="text-xs text-gray-400 mt-0.5">{{ contact.email }}</div>
+                @if (contact.phone) {
+                  <div class="text-xs text-gray-400">{{ contact.phone }}</div>
+                }
+              </td>
+
+              <!-- Type -->
+              <td class="admin-td">
+                <span class="badge-status" [class]="typeClass(contact.contactType)">
+                  {{ typeLabel(contact.contactType) }}
+                </span>
+              </td>
+
+              <!-- Référence -->
+              <td class="admin-td hidden md:table-cell">
+                @if (contact.propertyReference) {
+                  <span class="badge-ref">{{ contact.propertyReference }}</span>
+                } @else {
+                  <span class="text-gray-300">—</span>
+                }
+              </td>
+
+              <!-- Statut -->
+              <td class="admin-td">
+                <span class="badge-status" [class]="statusClass(contact.status)">
+                  {{ statusLabel(contact.status) }}
+                </span>
+              </td>
+
+              <!-- Date -->
+              <td class="admin-td hidden lg:table-cell text-gray-500">
+                {{ contact.createdAt | date:'d MMM yyyy' : undefined : 'fr-BE' }}
+              </td>
+
+              <!-- Flèche -->
+              <td class="admin-td text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="flex items-center justify-center gap-1 p-4 border-t border-gray-100">
+          <button
+            (click)="goToPage(currentPage() - 1)"
+            [disabled]="currentPage() === 0"
+            class="btn-page-nav"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          @for (p of pageNumbers; track p) {
+            <button
+              (click)="goToPage(p)"
+              class="btn-page-number"
+              [class]="p === currentPage() ? 'btn-page-number--active' : 'btn-page-number--inactive'"
+            >
+              {{ p + 1 }}
+            </button>
+          }
+          <button
+            (click)="goToPage(currentPage() + 1)"
+            [disabled]="currentPage() >= totalPages() - 1"
+            class="btn-page-nav"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      }
+    }
+
+    <!-- Vide -->
+    @if (!isLoading() && contacts().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" class="empty-state__icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+        </svg>
+        <p class="empty-state__title">Aucune demande trouvée</p>
+        <p class="empty-state__desc">Modifiez les filtres pour affiner votre recherche.</p>
+      </div>
+    }
+
+  </div>
+</div>

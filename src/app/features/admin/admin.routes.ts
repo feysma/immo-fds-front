@@ -41,6 +41,17 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./property-edit/admin-property-edit.component').then((m) => m.AdminPropertyEditComponent),
       },
+      // ── Contacts (contacts/new AVANT contacts/:id si nécessaire — ici pas de /new)
+      {
+        path: 'contacts',
+        loadComponent: () =>
+          import('./contacts/admin-contacts.component').then((m) => m.AdminContactsComponent),
+      },
+      {
+        path: 'contacts/:id',
+        loadComponent: () =>
+          import('./contact-detail/admin-contact-detail.component').then((m) => m.AdminContactDetailComponent),
+      },
     ],
   },
 ];

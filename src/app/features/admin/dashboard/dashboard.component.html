@@ -36,9 +36,9 @@
     </a>
 
     <!-- Demandes de contact -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-not-allowed opacity-60">
+    <a routerLink="/admin/contacts" class="card-nav group">
       <div class="flex items-center gap-4 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
           </svg>
@@ -48,10 +48,13 @@
           <p class="text-xs text-gray-400">Demandes reçues</p>
         </div>
       </div>
-      <span class="inline-block text-xs bg-gray-100 text-gray-500 rounded-full px-2.5 py-0.5 font-medium">
-        À venir
+      <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium group-hover:gap-2 transition-all">
+        Accéder
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
       </span>
-    </div>
+    </a>
 
     <!-- Utilisateurs (SUPER_ADMIN only) -->
     @if (authService.currentUser()?.role === 'SUPER_ADMIN') {

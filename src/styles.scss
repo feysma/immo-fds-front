@@ -309,6 +309,29 @@
     @apply bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm;
   }
 
+  // En-tête de colonne table admin
+  .admin-th {
+    @apply text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-4 py-3;
+  }
+
+  // Ligne table admin (hover + cursor)
+  .admin-tr {
+    @apply hover:bg-gray-50 cursor-pointer transition-colors;
+  }
+
+  // Cellule table admin
+  .admin-td {
+    @apply px-4 py-3 align-middle;
+  }
+
+  // Grille de détail contact (label / valeur)
+  .contact-detail-grid {
+    @apply grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm;
+
+    dt { @apply text-gray-400 font-medium whitespace-nowrap; }
+    dd { @apply text-gray-900; }
+  }
+
   // ── Layout ────────────────────────────────────────────────────────────────
 
   // Wrapper de page standard

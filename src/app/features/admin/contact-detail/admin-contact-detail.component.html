@@ -1,0 +1,206 @@
+<div class="container-app py-8">
+
+  <!-- Chargement -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <svg class="spinner spinner-md text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+    </div>
+  }
+
+  <!-- 404 -->
+  @if (!isLoading() && notFound()) {
+    <div class="text-center py-20">
+      <p class="text-gray-500 mb-4">Cette demande est introuvable.</p>
+      <button (click)="goBack()" class="btn-primary">Retour aux contacts</button>
+    </div>
+  }
+
+  <!-- Contenu -->
+  @if (!isLoading() && !notFound() && contact(); as c) {
+
+    <!-- En-tête -->
+    <div class="flex items-start gap-3 mb-8">
+      <button (click)="goBack()" class="btn-back mt-0.5" aria-label="Retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+      </button>
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          <span class="badge-status" [class]="typeClass(c.contactType)">{{ typeLabel(c.contactType) }}</span>
+          <span class="badge-status" [class]="statusClass(c.status)">{{ statusLabel(c.status) }}</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">{{ c.firstName }} {{ c.lastName }}</h1>
+        <p class="text-sm text-gray-400 mt-0.5">Reçu le {{ c.createdAt | date:'d MMMM yyyy à HH:mm' : undefined : 'fr-BE' }}</p>
+      </div>
+    </div>
+
+    <!-- Layout deux colonnes -->
+    <div class="layout-detail">
+
+      <!-- Colonne gauche : informations -->
+      <div class="layout-detail__main">
+
+        <!-- Coordonnées -->
+        <div class="section-card-admin">
+          <h2 class="section-card-admin__title">Coordonnées</h2>
+          <dl class="contact-detail-grid">
+            <dt>Prénom</dt><dd>{{ c.firstName }}</dd>
+            <dt>Nom</dt><dd>{{ c.lastName }}</dd>
+            <dt>E-mail</dt>
+            <dd><a [href]="'mailto:' + c.email" class="text-primary-600 hover:underline">{{ c.email }}</a></dd>
+            @if (c.phone) {
+              <dt>Téléphone</dt>
+              <dd><a [href]="'tel:' + c.phone" class="text-primary-600 hover:underline">{{ c.phone }}</a></dd>
+            }
+            @if (c.propertyReference) {
+              <dt>Référence bien</dt>
+              <dd><span class="badge-ref">{{ c.propertyReference }}</span></dd>
+            }
+          </dl>
+        </div>
+
+        <!-- Message -->
+        @if (c.message) {
+          <div class="section-card-admin">
+            <h2 class="section-card-admin__title">Message</h2>
+            <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ c.message }}</p>
+          </div>
+        }
+
+        <!-- Notes admin -->
+        <div class="section-card-admin">
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="section-card-admin__title mb-0">Notes internes</h2>
+            @if (!isEditingNotes()) {
+              <button (click)="startEditNotes()" type="button" class="btn-secondary text-xs px-3 py-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                </svg>
+                Modifier
+              </button>
+            }
+          </div>
+
+          @if (!isEditingNotes()) {
+            @if (c.adminNotes) {
+              <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ c.adminNotes }}</p>
+            } @else {
+              <p class="text-sm text-gray-400 italic">Aucune note interne.</p>
+            }
+          } @else {
+            <form [formGroup]="notesForm" (ngSubmit)="saveNotes()" class="space-y-3">
+              <textarea
+                formControlName="adminNotes"
+                rows="4"
+                placeholder="Ajouter des notes internes (non visibles par le client)…"
+                class="form-textarea"
+              ></textarea>
+              <div class="flex gap-2">
+                <button type="submit" [disabled]="isSavingNotes()" class="btn-primary-submit">
+                  @if (isSavingNotes()) {
+                    <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                  }
+                  Enregistrer
+                </button>
+                <button type="button" (click)="cancelEditNotes()" class="btn-secondary">Annuler</button>
+              </div>
+            </form>
+          }
+        </div>
+
+      </div>
+
+      <!-- Colonne droite : panneau latéral statut -->
+      <div class="layout-detail__aside">
+        <div class="layout-detail__aside-sticky">
+
+          <!-- Statut actuel -->
+          <div class="section-card-side">
+            <h3 class="section-card-side__title">Statut</h3>
+            <span class="badge-status-lg mb-4 inline-flex" [class]="statusClass(c.status)">
+              {{ statusLabel(c.status) }}
+            </span>
+
+            <!-- Transitions disponibles -->
+            @if (availableTransitions().length > 0) {
+              <div class="space-y-2 mt-4 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-2">Changer le statut vers :</p>
+                @for (transition of availableTransitions(); track transition) {
+                  <button
+                    type="button"
+                    (click)="requestStatusChange(transition)"
+                    class="btn-secondary w-full justify-center text-sm"
+                  >
+                    {{ statusLabel(transition) }}
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Confirmation de changement -->
+            @if (pendingStatus()) {
+              <div class="alert-warning mt-4">
+                <p class="text-sm font-medium text-amber-800">
+                  Passer le statut à <strong>{{ statusLabel(pendingStatus()!) }}</strong> ?
+                </p>
+                @if (statusError()) {
+                  <p class="text-xs text-red-600 mt-1">{{ statusError() }}</p>
+                }
+                <div class="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    (click)="confirmStatusChange()"
+                    [disabled]="isUpdatingStatus()"
+                    class="btn-primary-submit flex-1 py-1.5 text-xs"
+                  >
+                    @if (isUpdatingStatus()) {
+                      <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                    }
+                    Confirmer
+                  </button>
+                  <button type="button" (click)="cancelStatusChange()" class="btn-secondary flex-1 py-1.5 text-xs">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Métadonnées -->
+          <div class="section-card-side">
+            <h3 class="section-card-side__title">Informations</h3>
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-xs text-gray-400 mb-0.5">ID</dt>
+                <dd class="font-mono text-gray-600">#{{ c.id }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs text-gray-400 mb-0.5">Reçu le</dt>
+                <dd class="text-gray-700">{{ c.createdAt | date:'d MMM yyyy, HH:mm' : undefined : 'fr-BE' }}</dd>
+              </div>
+              @if (c.updatedAt !== c.createdAt) {
+                <div>
+                  <dt class="text-xs text-gray-400 mb-0.5">Mis à jour le</dt>
+                  <dd class="text-gray-700">{{ c.updatedAt | date:'d MMM yyyy, HH:mm' : undefined : 'fr-BE' }}</dd>
+                </div>
+              }
+            </dl>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>
