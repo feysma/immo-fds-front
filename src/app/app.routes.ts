@@ -24,6 +24,13 @@ export const routes: Routes = [
             (m) => m.PropertyDetailComponent
           ),
       },
+      {
+        path: 'properties/:reference/visit',
+        loadComponent: () =>
+          import('./features/visit-request/visit-request.component').then(
+            (m) => m.VisitRequestComponent
+          ),
+      },
     ],
   },
   {

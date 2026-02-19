@@ -114,3 +114,28 @@ export interface PageResponse<T> {
   totalPages: number;
   last: boolean;
 }
+
+// ── Contacts ──────────────────────────────────────────────────────────────────
+
+export interface VisitRequestDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  propertyReference: string;
+}
+
+export interface ContactRequestResponse {
+  id: number;
+  contactType: string;
+  status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  message: string | null;
+  propertyReference: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

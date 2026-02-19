@@ -385,6 +385,64 @@
     @apply bg-gray-200 animate-pulse rounded;
   }
 
+  // ── Visit-request ─────────────────────────────────────────────────────────
+
+  // Layout 2 colonnes : aside (résumé bien) + section (formulaire)
+  .visit-request-layout {
+    @apply grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-5xl mx-auto;
+
+    > aside   { @apply lg:col-span-2; }
+    > section { @apply lg:col-span-3; }
+  }
+
+  // Carte résumé du bien (colonne gauche)
+  .visit-property-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20;
+
+    &__img-wrapper {
+      @apply relative aspect-[4/3] bg-gray-100 overflow-hidden;
+    }
+    &__img {
+      @apply w-full h-full object-cover;
+    }
+    &__placeholder {
+      @apply w-full h-full flex flex-col items-center justify-center
+             bg-gradient-to-br from-gray-50 to-gray-200 text-gray-300;
+    }
+    &__body  { @apply p-5; }
+    &__type  { @apply text-xs font-medium text-primary-600 uppercase tracking-wide mb-1; }
+    &__title { @apply text-base font-semibold text-gray-900 leading-snug mb-3; }
+    &__price { @apply text-xl font-bold text-gray-900 mb-4; }
+    &__price-unit { @apply text-sm font-normal text-gray-500 ml-1; }
+    &__specs { @apply flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-gray-500 border-t border-gray-100 pt-4; }
+  }
+
+  // Élément de spec (surface, chambres, etc.)
+  .visit-spec-item {
+    @apply flex items-center gap-1.5;
+    &--location { @apply ml-auto; }
+  }
+
+  // Formulaire visite
+  .visit-form {
+    &__title    { @apply text-lg font-semibold text-gray-900 mb-1; }
+    &__subtitle { @apply text-sm text-gray-500 mb-6; }
+    &__fields   { @apply space-y-5; }
+    &__actions  { @apply flex flex-col sm:flex-row gap-3 pt-2; }
+  }
+
+  // Confirmation succès
+  .visit-success {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center py-12;
+
+    &__icon-wrapper {
+      @apply w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4;
+    }
+    &__title   { @apply text-xl font-semibold text-gray-900 mb-2; }
+    &__text    { @apply text-sm text-gray-500 max-w-sm mx-auto mb-8; }
+    &__actions { @apply flex flex-col sm:flex-row gap-3 justify-center; }
+  }
+
 }
 
 @tailwind utilities;

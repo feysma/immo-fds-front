@@ -1,6 +1,6 @@
 import { Component, input, inject } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PropertySummaryResponse } from '../../../core/models/property.model';
 import { PropertyService } from '../../../core/services/property.service';
 import { PropertyPlaceholderComponent } from '../property-placeholder/property-placeholder.component';
@@ -26,6 +26,7 @@ const PROPERTY_TYPE_LABELS: Record<string, string> = {
 })
 export class PropertyCardComponent {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly propertyService = inject(PropertyService);
 
   readonly property = input.required<PropertySummaryResponse>();
@@ -51,6 +52,12 @@ export class PropertyCardComponent {
   }
 
   navigateToDetail(): void {
-    this.router.navigate(['/properties', this.property().reference]);
+    // Passe les query params courants dans le Router state pour que
+    // les pages suivantes (detail, visit-request) puissent reconstituer
+    // le lien de retour vers la liste avec ses filtres.
+    const listQueryParams = this.route.snapshot.queryParams;
+    this.router.navigate(['/properties', this.property().reference], {
+      state: { listQueryParams },
+    });
   }
 }

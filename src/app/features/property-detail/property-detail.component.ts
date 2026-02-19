@@ -56,6 +56,10 @@ export class PropertyDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly propertyService = inject(PropertyService);
 
+  // Query params de la liste (/properties?...) transmis par la property-card via Router state.
+  // Conservés ici pour être repropagés vers visit-request.
+  private listQueryParams: Record<string, string> = {};
+
   readonly isLoading = signal(true);
   readonly property = signal<PropertyDetailResponse | null>(null);
   readonly notFound = signal(false);
@@ -114,6 +118,10 @@ export class PropertyDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Récupère les query params de la liste transmis par property-card via Router state.
+    // history.state persiste après la fin de la navigation, contrairement à getCurrentNavigation().
+    this.listQueryParams = (history.state?.['listQueryParams'] as Record<string, string>) ?? {};
+
     const reference = this.route.snapshot.paramMap.get('reference');
     if (!reference) {
       this.router.navigate(['/properties']);
@@ -160,11 +168,7 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      this.router.navigate(['/properties']);
-    }
+    this.router.navigate(['/properties'], { queryParams: this.listQueryParams });
   }
 
   getImageUrl(reference: string, imageId: number): string {
@@ -172,7 +176,12 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   requestVisit(): void {
-    // TODO: navigation vers formulaire de visite
+    const ref = this.property()?.reference;
+    if (ref) {
+      this.router.navigate(['/properties', ref, 'visit'], {
+        state: { listQueryParams: this.listQueryParams },
+      });
+    }
   }
 
   contact(): void {
