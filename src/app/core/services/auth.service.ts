@@ -90,7 +90,19 @@ export class AuthService {
     return localStorage.getItem(STORAGE_KEY_ACCESS);
   }
 
-  private handleAuthSuccess(res: AuthResponse): void {
+  getRefreshToken(): string | null {
+    return localStorage.getItem(STORAGE_KEY_REFRESH);
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return throwError(() => new Error('No refresh token'));
+    return this.http
+      .post<AuthResponse>(`${API_BASE}/refresh`, { refreshToken })
+      .pipe(tap((res) => this.handleAuthSuccess(res)));
+  }
+
+  handleAuthSuccess(res: AuthResponse): void {
     localStorage.setItem(STORAGE_KEY_ACCESS, res.accessToken);
     localStorage.setItem(STORAGE_KEY_REFRESH, res.refreshToken);
     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(res.user));
