@@ -52,6 +52,12 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./contact-detail/admin-contact-detail.component').then((m) => m.AdminContactDetailComponent),
       },
+      // -- Utilisateurs (SUPER_ADMIN only cote back)
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./users/admin-users.component').then((m) => m.AdminUsersComponent),
+      },
     ],
   },
 ];

@@ -1,0 +1,287 @@
+<div class="container-app py-8">
+
+  <!-- En-tête -->
+  <div class="flex items-center gap-3 mb-8">
+    <button (click)="goBack()" class="btn-back mt-0.5" aria-label="Retour">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+    </button>
+    <div class="flex-1">
+      <h1 class="text-2xl font-bold text-gray-900">Utilisateurs</h1>
+      <p class="text-sm text-gray-400 mt-0.5">
+        @if (!isLoading()) { {{ totalElements() }} utilisateur{{ totalElements() !== 1 ? 's' : '' }} }
+      </p>
+    </div>
+    <button (click)="openCreateModal()" class="btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Nouvel utilisateur
+    </button>
+  </div>
+
+  <!-- Chargement -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <svg class="spinner spinner-md text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+    </div>
+  }
+
+  <!-- Tableau -->
+  @if (!isLoading()) {
+    @if (users().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" class="empty-state__icon" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        <p class="empty-state__text">Aucun utilisateur trouvé.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="admin-th">Utilisateur</th>
+              <th class="admin-th">Rôle</th>
+              <th class="admin-th">Statut</th>
+              <th class="admin-th">Créé le</th>
+              <th class="admin-th text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr class="admin-tr">
+                <td class="admin-td">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-700 text-sm font-semibold shrink-0">
+                      {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                    </span>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-gray-900 truncate">{{ user.firstName }} {{ user.lastName }}</p>
+                      <p class="text-xs text-gray-400 truncate">{{ user.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="admin-td">
+                  <span class="badge-status" [class]="roleClass(user.role)">{{ roleLabel(user.role) }}</span>
+                </td>
+                <td class="admin-td">
+                  @if (user.active) {
+                    <span class="badge-status bg-emerald-100 text-emerald-700">Actif</span>
+                  } @else {
+                    <span class="badge-status bg-gray-100 text-gray-500">Inactif</span>
+                  }
+                </td>
+                <td class="admin-td text-sm text-gray-500">
+                  {{ user.createdAt | date:'d MMM yyyy' : undefined : 'fr-BE' }}
+                </td>
+                <td class="admin-td">
+                  <div class="flex items-center justify-end gap-2">
+                    <button (click)="openEditModal(user)" class="user-action-btn" title="Modifier">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                      </svg>
+                    </button>
+                    <button (click)="requestDelete(user)" class="user-action-btn user-action-btn--danger" title="Supprimer">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0" class="pagination__btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          @for (p of pageNumbers; track p) {
+            <button (click)="goToPage(p)" class="pagination__btn" [class.pagination__btn--active]="p === currentPage()">
+              {{ p + 1 }}
+            </button>
+          }
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages() - 1" class="pagination__btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      }
+    }
+  }
+
+</div>
+
+<!-- ═══════════════════════ MODALE CRÉATION / ÉDITION ═══════════════════════ -->
+
+@if (isModalOpen()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <form [formGroup]="userForm" (ngSubmit)="submitModal()"
+          class="modal-panel" (click)="$event.stopPropagation()">
+
+      <!-- En-tête -->
+      <div class="modal-header">
+        <div>
+          <h2 class="text-base font-semibold text-gray-900">
+            {{ modalMode() === 'create' ? 'Nouvel utilisateur' : 'Modifier l\'utilisateur' }}
+          </h2>
+          @if (modalMode() === 'edit' && editingUser()) {
+            <p class="text-xs text-gray-400 mt-0.5">{{ editingUser()!.email }}</p>
+          }
+        </div>
+        <button type="button" (click)="closeModal()" class="modal-close-btn" aria-label="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Corps -->
+      <div class="modal-body space-y-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Prénom -->
+          <div>
+            <label class="form-label">Prénom <span class="text-red-500">*</span></label>
+            <input formControlName="firstName" type="text" class="form-input"
+                   [class.form-input--error]="hasError('firstName')" />
+            @if (hasError('firstName')) {
+              <p class="form-error">Prénom requis.</p>
+            }
+          </div>
+          <!-- Nom -->
+          <div>
+            <label class="form-label">Nom <span class="text-red-500">*</span></label>
+            <input formControlName="lastName" type="text" class="form-input"
+                   [class.form-input--error]="hasError('lastName')" />
+            @if (hasError('lastName')) {
+              <p class="form-error">Nom requis.</p>
+            }
+          </div>
+        </div>
+
+        <!-- E-mail -->
+        <div>
+          <label class="form-label">E-mail <span class="text-red-500">*</span></label>
+          <input formControlName="email" type="email" class="form-input"
+                 [class.form-input--error]="hasError('email')" />
+          @if (hasError('email')) {
+            <p class="form-error">E-mail valide requis.</p>
+          }
+        </div>
+
+        <!-- Rôle -->
+        <div>
+          <label class="form-label">Rôle <span class="text-red-500">*</span></label>
+          <select formControlName="role" class="form-select">
+            <option value="ADMIN">Administrateur</option>
+            <option value="SUPER_ADMIN">Super administrateur</option>
+          </select>
+        </div>
+
+        <!-- Mot de passe (création uniquement) -->
+        @if (modalMode() === 'create') {
+          <div>
+            <label class="form-label">Mot de passe <span class="text-red-500">*</span></label>
+            <input formControlName="password" type="password" class="form-input"
+                   [class.form-input--error]="hasError('password')"
+                   placeholder="8 caractères minimum" />
+            @if (hasError('password')) {
+              <p class="form-error">Mot de passe requis (min. 8 caractères).</p>
+            }
+          </div>
+        }
+
+        <!-- Statut actif (édition uniquement) -->
+        @if (modalMode() === 'edit') {
+          <div class="flex items-center gap-3 py-1">
+            <input formControlName="active" type="checkbox" id="user-active"
+                   class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+            <label for="user-active" class="text-sm text-gray-700 cursor-pointer">Compte actif</label>
+          </div>
+        }
+
+        @if (saveError()) {
+          <p class="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{{ saveError() }}</p>
+        }
+
+      </div>
+
+      <!-- Pied de modale -->
+      <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn-secondary">Annuler</button>
+        <button type="submit" [disabled]="isSaving()" class="btn-primary-submit">
+          @if (isSaving()) {
+            <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+          }
+          {{ modalMode() === 'create' ? 'Créer' : 'Enregistrer' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+}
+
+<!-- ═══════════════════════ MODALE CONFIRMATION SUPPRESSION ═══════════════════════ -->
+
+@if (deletingUser()) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-panel modal-panel--sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <h2 class="text-base font-semibold text-gray-900">Supprimer l'utilisateur</h2>
+        </div>
+        <button type="button" (click)="cancelDelete()" class="modal-close-btn" aria-label="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body space-y-3">
+        <p class="text-sm text-gray-600 leading-relaxed">
+          Vous êtes sur le point de supprimer le compte de
+          <strong class="text-gray-900">{{ deletingUser()!.firstName }} {{ deletingUser()!.lastName }}</strong>.
+          Cette action est irréversible.
+        </p>
+        <p class="text-xs text-gray-400 font-mono bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+          {{ deletingUser()!.email }}
+        </p>
+        @if (deleteError()) {
+          <p class="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{{ deleteError() }}</p>
+        }
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="cancelDelete()" class="btn-secondary">Annuler</button>
+        <button type="button" (click)="confirmDelete()" [disabled]="isDeleting()" class="btn-danger">
+          @if (isDeleting()) {
+            <svg class="spinner spinner-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+          }
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
