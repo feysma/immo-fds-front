@@ -6,4 +6,9 @@ export const environment = {
   get apiBaseUrl(): string {
     return (window as any).__APP_CONFIG__?.API_URL ?? 'http://localhost:8080';
   },
+  // Clé Mapbox GL JS — à renseigner dans src/environments/environment.ts pour le dev local.
+  // En Docker : injectée via __APP_CONFIG__.MAPBOX_TOKEN (entrypoint.sh / env.js).
+  get mapboxAccessToken(): string {
+    return (window as any).__APP_CONFIG__?.MAPBOX_TOKEN ?? '';
+  },
 };

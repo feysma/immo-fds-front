@@ -6,4 +6,8 @@ export const environment = {
   get apiBaseUrl(): string {
     return (window as any).__APP_CONFIG__?.API_URL ?? '';
   },
+  // Cle Mapbox GL JS -- injectee via __APP_CONFIG__.MAPBOX_TOKEN (entrypoint.sh / env.js).
+  get mapboxAccessToken(): string {
+    return (window as any).__APP_CONFIG__?.MAPBOX_TOKEN ?? '';
+  },
 };

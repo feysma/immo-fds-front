@@ -32,9 +32,13 @@
               }
             ],
             "styles": [
+              "node_modules/mapbox-gl/dist/mapbox-gl.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "mapbox-gl"
+            ]
           },
           "configurations": {
             "production": {

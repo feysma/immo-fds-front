@@ -5,6 +5,7 @@ import { PropertyService } from '../../core/services/property.service';
 import { PropertyDetailResponse } from '../../core/models/property.model';
 import { PropertyPlaceholderComponent } from '../../shared/components/property-placeholder/property-placeholder.component';
 import { FooterPublicComponent } from '../../shared/components/footer-public/footer-public.component';
+import { PropertyMapComponent } from '../../shared/components/property-map/property-map.component';
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
   HOUSE: 'Maison',
@@ -47,7 +48,7 @@ const ENERGY_COLORS: Record<string, string> = {
 
 @Component({
   selector: 'app-property-detail',
-  imports: [CurrencyPipe, DatePipe, PropertyPlaceholderComponent, FooterPublicComponent],
+  imports: [CurrencyPipe, DatePipe, PropertyPlaceholderComponent, FooterPublicComponent, PropertyMapComponent],
   templateUrl: './property-detail.component.html',
   styleUrl: './property-detail.component.scss',
 })

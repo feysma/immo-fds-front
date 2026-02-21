@@ -320,6 +320,18 @@
             </div>
 
           </form>
+
+          <!-- ── Carte de localisation ───────────────────────────────────── -->
+          @if (property()?.latitude && property()?.longitude) {
+            <section class="section-card-admin mt-2">
+              <h2 class="section-card-admin__title">Localisation sur la carte</h2>
+              <app-property-map
+                [latitude]="property()!.latitude!"
+                [longitude]="property()!.longitude!"
+                [title]="property()!.title"
+              />
+            </section>
+          }
         </div>
 
         <!-- ── Colonne droite : statut + images + méta ────────────────────── -->

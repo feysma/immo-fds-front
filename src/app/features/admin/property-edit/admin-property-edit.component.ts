@@ -9,7 +9,8 @@ import {
 } from '../../../core/services/admin-property.service';
 import { PropertyService } from '../../../core/services/property.service';
 import { PropertyDetailResponse, EnumValueResponse } from '../../../core/models/property.model';
-import { PropertyPlaceholderComponent } from '../../../shared/components/property-placeholder/property-placeholder.component';
+import { PropertyPlaceholderComponent } from '../../../shared/components/property-placeholder/property-placeholder.component';import { PropertyMapComponent } from '../../../shared/components/property-map/property-map.component';
+
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT:     'Brouillon',
@@ -34,7 +35,7 @@ const ENERGY_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-property-edit',
-  imports: [ReactiveFormsModule, DatePipe, PropertyPlaceholderComponent],
+  imports: [ReactiveFormsModule, DatePipe, PropertyPlaceholderComponent, PropertyMapComponent],
   templateUrl: './admin-property-edit.component.html',
   styleUrl: './admin-property-edit.component.scss',
 })
