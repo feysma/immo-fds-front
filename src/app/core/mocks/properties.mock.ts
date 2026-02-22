@@ -42,6 +42,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'BRUXELLES_CAPITALE',
     energyRating: 'B',
     primaryImageId: 101,
+    latitude: 50.8003,
+    longitude: 4.3572,
     createdAt: '2025-01-10T10:00:00Z',
   },
   {
@@ -58,6 +60,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'LIEGE',
     energyRating: 'C',
     primaryImageId: null,
+    latitude: 50.6450,
+    longitude: 5.5735,
     createdAt: '2025-01-12T09:30:00Z',
   },
   {
@@ -74,6 +78,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'BRUXELLES_CAPITALE',
     energyRating: 'A',
     primaryImageId: null,
+    latitude: 50.8503,
+    longitude: 4.3517,
     createdAt: '2025-01-14T14:00:00Z',
   },
   {
@@ -90,6 +96,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'FLANDRE_ORIENTALE',
     energyRating: 'B',
     primaryImageId: null,
+    latitude: 51.0543,
+    longitude: 3.7174,
     createdAt: '2025-01-15T11:00:00Z',
   },
   {
@@ -106,6 +114,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'BRABANT_WALLON',
     energyRating: 'A',
     primaryImageId: null,
+    latitude: 50.7178,
+    longitude: 4.3997,
     createdAt: '2025-01-16T08:00:00Z',
   },
   {
@@ -122,6 +132,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'ANVERS',
     energyRating: 'C',
     primaryImageId: null,
+    latitude: 51.2194,
+    longitude: 4.4025,
     createdAt: '2025-01-17T10:00:00Z',
   },
   {
@@ -138,6 +150,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'NAMUR',
     energyRating: null,
     primaryImageId: null,
+    latitude: 50.4674,
+    longitude: 4.8720,
     createdAt: '2025-01-18T09:00:00Z',
   },
   {
@@ -154,6 +168,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'BRABANT_FLAMAND',
     energyRating: 'B',
     primaryImageId: null,
+    latitude: 50.8798,
+    longitude: 4.7005,
     createdAt: '2025-01-19T10:00:00Z',
   },
   {
@@ -170,6 +186,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'FLANDRE_OCCIDENTALE',
     energyRating: 'D',
     primaryImageId: null,
+    latitude: 51.2093,
+    longitude: 3.2247,
     createdAt: '2025-01-20T11:00:00Z',
   },
   {
@@ -186,6 +204,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'LUXEMBOURG',
     energyRating: 'E',
     primaryImageId: null,
+    latitude: 49.6833,
+    longitude: 5.8167,
     createdAt: '2025-01-21T09:00:00Z',
   },
   {
@@ -202,6 +222,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'BRUXELLES_CAPITALE',
     energyRating: 'C',
     primaryImageId: null,
+    latitude: 50.8680,
+    longitude: 4.3785,
     createdAt: '2025-01-22T10:00:00Z',
   },
   {
@@ -218,6 +240,8 @@ export const MOCK_PROPERTIES: PropertySummaryResponse[] = [
     province: 'HAINAUT',
     energyRating: 'C',
     primaryImageId: null,
+    latitude: 50.4542,
+    longitude: 3.9522,
     createdAt: '2025-01-23T08:30:00Z',
   },
 ];

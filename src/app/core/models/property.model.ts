@@ -62,6 +62,8 @@ export interface PropertySummaryResponse {
   province: string;
   energyRating: string | null;
   primaryImageId: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   createdAt: string;
 }
 

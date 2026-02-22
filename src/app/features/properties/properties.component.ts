@@ -81,7 +81,6 @@ export class PropertiesComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Lire les paramètres de recherche depuis les query params de l'URL
     this.route.queryParams.subscribe((qp) => {
       const params: PropertySearchParams = {
         transactionType: (qp['transactionType'] as any) || undefined,
@@ -99,7 +98,6 @@ export class PropertiesComponent implements OnInit {
       this.load(params);
     });
 
-    // Rechargement au changement de tri — recharge avec les params courants, page 0
     this.sortForm.get('sort')!.valueChanges.subscribe(() => {
       const params = { ...this.currentParams(), page: 0 };
       this.currentPage.set(0);
