@@ -22,8 +22,11 @@
             <h1 class="text-lg font-bold text-gray-900 truncate">Biens disponibles</h1>
             @if (!isLoading()) {
               <p class="text-sm text-gray-500">
-                <span class="font-semibold text-primary-600">{{ totalElements() }}</span>
-                {{ totalElements() === 1 ? 'bien trouvé' : 'biens trouvés' }}
+                <span class="font-semibold text-primary-600">{{ displayCount() }}</span>
+                {{ displayCount() === 1 ? 'bien trouvé' : 'biens trouvés' }}
+                @if (isIsochroneActive()) {
+                  <span class="ml-1 text-primary-500">(zone isochrone)</span>
+                }
               </p>
             }
           </div>
@@ -62,6 +65,19 @@
   <!-- ===== CONTENU PRINCIPAL ===== -->
   <main class="container-app py-8">
 
+    <!-- Widget isochrone -->
+    <isochrone-search
+      [attr.mapbox-token]="mapboxToken"
+      lang="fr"
+      default-transport="driving"
+      default-minutes="15"
+      map-height="500px"
+      country="be"
+      (isochrone-changed)="onIsochroneChanged($event)"
+      (isochrone-cleared)="onIsochroneCleared()"
+      class="block mb-6"
+    ></isochrone-search>
+
     <!-- État de chargement -->
     @if (isLoading()) {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -80,9 +96,9 @@
     }
 
     <!-- Grille de résultats -->
-    @if (!isLoading() && properties().length > 0) {
+    @if (!isLoading() && filteredProperties().length > 0) {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        @for (property of properties(); track property.reference) {
+        @for (property of filteredProperties(); track property.reference) {
           <app-property-card [property]="property" />
         }
       </div>
@@ -131,7 +147,7 @@
     }
 
     <!-- Aucun résultat -->
-    @if (!isLoading() && properties().length === 0) {
+    @if (!isLoading() && filteredProperties().length === 0) {
       <div class="flex flex-col items-center justify-center py-20 text-center">
         <div class="text-gray-300 mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
@@ -139,7 +155,11 @@
           </svg>
         </div>
         <h2 class="text-xl font-semibold text-gray-700 mb-2">Aucun bien trouvé</h2>
-        <p class="text-gray-500 mb-6 max-w-sm">Aucun bien ne correspond à vos critères de recherche. Essayez d'élargir votre recherche.</p>
+        @if (isIsochroneActive()) {
+          <p class="text-gray-500 mb-6 max-w-sm">Aucun bien disponible dans cette zone isochrone. Essayez d'élargir la durée ou de changer l'adresse.</p>
+        } @else {
+          <p class="text-gray-500 mb-6 max-w-sm">Aucun bien ne correspond à vos critères de recherche. Essayez d'élargir votre recherche.</p>
+        }
         <button
           (click)="goBack()"
           class="btn-primary"
